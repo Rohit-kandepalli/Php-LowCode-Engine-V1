@@ -1,0 +1,11 @@
+{
+  "specName": "cypress\\e2e\\Dealer_Websites\\Social_media_task.cy.js",
+  "title": "Should find the class name of a specific element",
+  "suiteName": "Find Class Name on Website",
+  "testName": "Find Class Name on Website Should find the class name of a specific element",
+  "testError": "Timed out retrying after 500ms: Expected to find element: `.fSIcons`, but never found it.",
+  "testCommands": [
+    "visit https://stage.shahauto.in",
+    "get .fSIcons"
+  ]
+}

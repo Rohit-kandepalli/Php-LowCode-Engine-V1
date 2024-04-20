@@ -1,0 +1,16 @@
+{
+  "specName": "cypress\\e2e\\Dealer_Websites\\Social_media_task.cy.js",
+  "title": "",
+  "suiteName": "",
+  "testName": " ",
+  "testError": "Timed out retrying after 500ms: The command was expected to run against origin `https://stage.himanshucarworld.in` but the application is at origin `https://stage.brightmotorsindia.in`.\n\nThis commonly happens when you have either not navigated to the expected origin or have navigated away unexpectedly.\n\nUsing `cy.origin()` to wrap the commands run on `https://stage.brightmotorsindia.in` will likely fix this issue.\n\n`cy.origin('https://stage.brightmotorsindia.in', () => {`\n`  <commands targeting https://stage.brightmotorsindia.in go here>`\n`})`",
+  "testCommands": [
+    "visit https://stage.himanshucarworld.in",
+    "wait 2000",
+    "get body",
+    "log Social media is here",
+    "visit https://stage.brightmotorsindia.in",
+    "wait 2000",
+    "get body"
+  ]
+}
