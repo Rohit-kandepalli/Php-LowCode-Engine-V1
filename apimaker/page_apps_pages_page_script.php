@@ -23,16 +23,14 @@
 	$tag_settings = file_get_contents("page_apps_pages_page_tag_config.js");
 
 	$components = [
+		"page_databasetable","page_auth_default"
 	];
 
 	$plugins = [
 		//"Date"	
 	];
 	foreach( $components as $i=>$j ){
-		require("apps/" . $j . ".js");
-	}
-	foreach( $plugins as $i=>$j ){
-		require("plugins/plugin_" . $j . ".js");
+		require($apps_folder."/" . $j . ".js");
 	}
 
 	require("page_apps_pages_page_tag_config.js");
@@ -56,7 +54,7 @@ eval("s__ = " + atob("VnVlLmNyZWF0ZUFwcA=="));
 var app = s__({
 	data(){
 		return {
-			rootpath: '<?=$config_global_apimaker_path ?>/',
+			rootpath: '<?=$config_global_apimaker_path ?>',
 			path: '<?=$config_global_apimaker_path ?>apps/<?=$config_param1 ?>/',
 			global_data__: {"s":"sss"},
 			app_id: "<?=$config_param1 ?>",
@@ -65,6 +63,7 @@ var app = s__({
 			app__: <?=json_encode($app) ?>,
 			page__: <?=json_encode($page) ?>,
 			"server_host__"			: "<?=$config_page_domain ?>",
+			html2: "",
 			token: "",
 			msg__: "",
 			err__: "",
@@ -73,8 +72,12 @@ var app = s__({
 			vshow__: true,
 			md: false,
 			frame: false,
+			control_frame: false,
 			inside_app__: false,
 			/* ---------------------------------------------------------------------- */
+
+			vurls: {},
+			vurls_list: [],
 
 			target_editor_id: "editor_div",
 			shwoit: false,
@@ -117,6 +120,7 @@ var app = s__({
 			vmtt2_el: false,
 			vmtt2_tip: "",
 			vmtt2_pos: "top",
+			vmtt2_pos2: "outside",
 			vmtt_focus: false,
 			vmtt_focus_t: false,
 			vmtt_focus_c: 0,
@@ -125,8 +129,10 @@ var app = s__({
 			config_tags: {
 				"Blocks":	["DIV","P","H1","H2","H3","H4","BlockQuote","UL","OL","LI", "RichText"],
 				"Layout":	["Container","Grid","CSS Grid","Column","Table"],
-				"Forms":	["Static Form","Input","Select","TextArea","Label","FieldGroup"],
-				"Components":	["Definition List","Accordion","Alert","Badge","Breadcrumb","Button","Button group","Card","Carousel","Collapse","Dropdown","List group","Modal","Navbar","Navs","Offcanvas","Pagination","Placeholders","Popovers","Progress","Scrollspy","Spinners","Toasts","Tooltips"],
+				"Forms":	["Static Form", "Form", "Input","Select","TextArea","Label","FieldGroup"],
+				"Content":  ["IMG", "Figure", "Video", "Audio"],
+				"Components": ["Definition List","Accordion","Alert","Badge","Breadcrumb","Button","Button group","Card","Carousel","Collapse","Dropdown","List group","Modal","Navbar","Navs","Offcanvas","Pagination","Placeholders","Popovers","Progress","Scrollspy","Spinners","Toasts","Tooltips"],
+				"Apps": ["AuthDefault", "DatabaseTable"],
 			},
 			raw_html: `<div>Raw html content</div>`,
 			ce: false,
@@ -263,14 +269,18 @@ var app = s__({
 			doc_error: "",
 			paste_shift: false,
 			ace_editor: false,
+			ace_editor2: false,
+			ace_editor3: false,
 
 			focused: false,
 			focused_selection: false,
-			focused_className: "",
+			focused_classNames: "",
 			focused_styles: {},
 			focused_attributes: {},
 			focused_type: "",
 			focused_block_type: "",
+			focused_app: "",
+			focused_app_type: "",
 			focused_block: false,
 			focused_table: false,
 			focused_anchor: false,
@@ -281,6 +291,9 @@ var app = s__({
 			focused_img: false,
 			focused_tree: [],
 
+			page_source: "",
+			edit_tab: "html",
+
 		};
 	},
 	mounted(){
@@ -289,6 +302,7 @@ var app = s__({
 		document.addEventListener("mouseup", this.event_mouseup__);
 		document.addEventListener("mousemove", this.event_mousemove__);
 		this.frame = this.$refs.editor_iframe__.contentWindow;
+		this.control_frame = this.$refs.control_iframe__;
 		
 		const new_style_element = document.createElement("style");
 		new_style_element.id = "editor_top_css__";
@@ -321,12 +335,126 @@ var app = s__({
 		<?php 
 		//require("page_apps_pages_page_script2.js");
 		?>
+		console.log("OKK");
 		setTimeout(this.init,500);
 		setTimeout(this.initialize_events,1000);
 		setTimeout(this.initialize_tables,2000);
 		setInterval(this.vmtt_set,300);
+		console.log("OKK");
+		this.set_preview_urls();
+		console.log("OKKz");
 	},
 	methods: {
+
+		set_preview_urls: function(){
+			console.log("OKK1");
+			var urls = {};
+			var ulist = [];
+			if( 'cloud' in this.app__['settings'] ){if( this.app__['settings']['cloud'] ){
+				var u = "https://" + this.app__['settings']['cloud-subdomain'] + '.' + this.app__['settings']['cloud-domain'] + '/' + this.app__['settings']['cloud-enginepath'] + this.page__['name'];
+				urls['cloud'] = u;
+				ulist.push( u );
+				if( 'alias' in this.app__['settings'] ){if( this.app__['settings']['alias'] ){
+					var u = "https://" + this.app__['settings']['alias-domain'] + this.page__['name'];
+					urls['alias'] = u;
+					ulist.push( u );
+				}}
+			}}
+			console.log("OKK2");
+			if( 'domains' in this.app__['settings'] ){
+				urls['domains'] = [];
+				for(var d=0;d<this.app__['settings']['domains'].length;d++ ){
+					var u = this.app__['settings']['domains'][ d ]['url'] + this.page__['name'];
+					urls['domains'].push( u );
+					ulist.push( u );
+				}
+			}
+			this.vurls = urls;
+			this.vurls_list = ulist;
+			this.echo__( this.vurls );this.echo__( this.vurls_list );
+		},
+		previewit: function(){	
+			this.url_modal = new bootstrap.Modal(document.getElementById('url_modal'));
+			this.url_modal.show();
+		},
+
+		delete_tag: function(){
+			if( confirm("Are you sure to delete tag: " + this.focused.nodeName + "\n\n" + html_beautify( this.focused.outerHTML) ) ){
+				this.focused.remove();
+				this.unset_focused();
+			}
+		},
+		switch_tab: function(v){
+			console.log("Switching tab: " + v);
+			if( this.edit_tab == 'source' ){
+				if( this.ace_editor2 ){
+					this.page__['html'] = this.ace_editor2.getValue();
+					this.html2 = this.page__['html'];
+				}
+			}
+			if( this.edit_tab == 'html' ){
+				this.page__['html'] = this.frame.document.getElementById(this.target_editor_id).innerHTML;
+				this.html2 = this.page__['html'];
+			}
+			if( this.edit_tab == 'scriptsource' ){
+				this.page__['script'] = this.ace_editor3.getValue();
+			}
+			if( v == "source" ){
+				this.init_ace2();
+			}
+			if( v == "sourcescript" ){
+				this.init_ace3();
+			}
+			if( v == "control" ){
+				console.log( this.control_frame );
+				this.control_frame.src = this.path + "codeeditor/pagecontrol/" + this.page_version_id;
+			}
+			if( v == "html" ){
+				this.frame.document.getElementById(this.target_editor_id).innerHTML = this.page__['html'];
+			}
+			this.edit_tab = v;
+		},
+		init_ace2: function(){
+			console.log("Ace initialized");
+			this.ace_editor2 = ace.edit("page_source_block");
+			this.ace_editor2.session.setMode("ace/mode/html");
+			this.ace_editor2.setOptions({
+				enableAutoIndent: true, behavioursEnabled: true,
+				showPrintMargin: false, printMargin: false, 
+				showFoldWidgets: false, 
+			});
+			this.ace_editor2.setValue( html_beautify(this.page__['html']) );
+		},
+		init_ace3: function(){
+			console.log("Ace initialized");
+			this.ace_editor3 = ace.edit("page_script_block");
+			this.ace_editor3.session.setMode("ace/mode/javascript");
+			this.ace_editor3.setOptions({
+				enableAutoIndent: true, behavioursEnabled: true,
+				showPrintMargin: false, printMargin: false, 
+				showFoldWidgets: false, 
+			});
+			this.ace_editor3.setValue( js_beautify(this.page__['script']) );
+		},
+		insert_above: function(){
+			this.vmtt2_el = this.focused;
+			this.vmtt2_pos = "top";
+			this.insert_item_form();
+		},
+		insert_below: function(){
+			this.vmtt2_el = this.focused;
+			this.vmtt2_pos = "bottom";
+			this.insert_item_form();
+		},
+		get_focused_tag_frame: function(){
+			var d = this.vmtt2_el.outerHTML;
+			var vl = document.createElement("div");
+			vl.innerHTML = d;
+			vl.childNodes[0].innerHTML = "";
+			var s = vl.childNodes[0].outerHTML;
+			vl.remove();
+			return s;
+		},
 		vmtt_set: function(){
 			try{
 				if( this.vmtt_focus_t ){
@@ -399,7 +527,17 @@ var app = s__({
 			});
 		},
 		save_page2(){
-			this.page__['html'] = this.frame.document.getElementById(this.target_editor_id).innerHTML;
+			if( this.edit_tab == 'html' ){
+				this.page__['html'] = this.frame.document.getElementById(this.target_editor_id).innerHTML;
+				this.html2 = this.page__['html'];
+			}
+			if( this.edit_tab == 'source' ){
+				this.page__['html'] = this.ace_editor2.getValue();
+				this.html2 = this.page__['html'];
+			}
+			if( this.edit_tab == 'sourcescript' ){
+				this.page__['script'] = this.ace_editor3.getValue();
+			}
 			if( 'settings' in this.page__ == false ){
 				this.page__['settings'] = {"one":1};
 			}
@@ -411,6 +549,7 @@ var app = s__({
 				"token":this.token,
 				"page_version_id": this.page_version_id,
 				"html": this.page__['html'],
+				"script": this.page__['script'],
 				"settings": this.page__['settings'],
 			}).then(response=>{
 				this.msg__ = "";
@@ -439,6 +578,11 @@ var app = s__({
 			this.frame.document.body.appendChild( document.getElementById("editor_div") );
 			this.frame.document.body.appendChild( document.getElementById("editor_controlls") );
 			performance.now = this.frame.performance.now;
+			setTimeout(this.init2,500);
+		},
+		init2: function(){
+			//this.html2 = this.page__['html']+'';
+			this.frame.document.getElementById(this.target_editor_id).innerHTML = this.page__['html']+'';
 		},
 		event_mouseup__: function(e){
 			this.md = false;
@@ -578,6 +722,25 @@ var app = s__({
 				this.set_focused2( vnew );
 			},
 			insert_item_form: function(){
+				if( this.vmtt2_el.nodeName == "LI" ){
+					if( this.vmtt2_pos == "top" ){
+						this.vmtt2_el.insertAdjacentHTML("beforebegin", this.vmtt2_el.outerHTML);
+					}else{
+						this.vmtt2_el.insertAdjacentHTML("afterend", this.vmtt2_el.outerHTML);
+					}
+					return;
+				}
+				if( this.vmtt2_el.nodeName == "TR" ){
+					if( this.vmtt2_pos == "top" ){
+						this.vmtt2_el.insertAdjacentHTML("beforebegin", this.vmtt2_el.outerHTML );
+					}else{
+						this.vmtt2_el.insertAdjacentHTML("afterend", this.vmtt2_el.outerHTML, );
+					}
+					return;
+				}
+				if( this.vmtt2_el.nodeName == "TD" ){alert("Please choose TR");return;}
+				if( this.vmtt2_el.nodeName == "TBODY" || this.vmtt2_el.nodeName == "THEAD" || this.vmtt2_el.nodeName == "TFOOT" ){alert("Please choose Table");return;}
+				if( this.vmtt2_el.className.match('/col\-/') ){ alert("Please choose Class=Row");return; }
 				if( this.insert_tag ){
 					this.tag_settings_popup_title = "Create new HTML Block";
 					this.tag_settings_type = "new";
@@ -709,13 +872,17 @@ var app = s__({
 					if( h > 20 ){
 						this.vmtt2_el = v;
 						this.vmtt2_tip = v.nodeName+(v.className?'.'+v.className:'');
-						if( ( oY < 10 || (oY > s.height-10) ) ){
-							if( oY < (s.height/2) ){
-								this.vmtt2 = "top:" + (s.top+sy-3) + "px;left:" + (s.left+sx) + "px;width:"+(s.width)+";height:5px;";
-								this.vmtt2_pos = "top";
+						if( this.focused != v ){
+							if( ( oY < 10 || (oY > s.height-10) ) ){
+								if( oY < (s.height/2) ){
+									this.vmtt2 = "top:" + (s.top+sy-3) + "px;left:" + (s.left+sx) + "px;width:"+(s.width)+";height:5px;";
+									this.vmtt2_pos = "top";
+								}else{
+									this.vmtt2 = "top:" + (s.bottom+sy-3) + "px;left:" + (s.left+sx) + "px;width:"+(s.width)+";height:5px;";
+									this.vmtt2_pos = "bottom";
+								}
 							}else{
-								this.vmtt2 = "top:" + (s.bottom+sy-3) + "px;left:" + (s.left+sx) + "px;width:"+(s.width)+";height:5px;";
-								this.vmtt2_pos = "bottom";
+								this.vmtt2 = "visibility:none;";
 							}
 						}else{
 							this.vmtt2 = "visibility:none;";
@@ -2377,7 +2544,6 @@ var app = s__({
 				}
 			},
 			keydown_outside: function(e){if( this.enabled ){
-				this.echo__("keydownoutside"+e.keyCode);
 				if( e.keyCode == 27 ){ // escape
 					//this.insert_tag =false;
 					this.show_toolbar = false;
@@ -2775,6 +2941,7 @@ var app = s__({
 			selection_to_delete: function(){
 				var sr = this.frame.document.getSelection().getRangeAt(0);
 				sr.deleteContents();
+				this.unset_focused();
 			},
 			find_root_sections_list: function(){
 				var sr = this.frame.document.getSelection().getRangeAt(0);
@@ -2864,6 +3031,7 @@ var app = s__({
 			clickit: function( e ){if( this.enabled ){
 				//this.insert_tag = false;
 				console.log("clickit:");
+				e.preventDefault();e.stopPropagation();
 				var sel = this.frame.document.getSelection();
 				if( sel.rangeCount ){
 					var sr = sel.getRangeAt(0);
@@ -2885,6 +3053,8 @@ var app = s__({
 				this.focused_type= "";
 				this.focused_block_type= "";
 				this.focused_block= false;
+				this.focused_app_type= "";
+				this.focused_app= false;
 				this.focused_table= false;
 				if( vanchor == false ){
 					this.focused_anchor= false;
@@ -2904,6 +3074,10 @@ var app = s__({
 				this.vmb="visibility: hidden;";
 				this.vmtip="visibility: hidden;";
 				this.vmttt= "visibility: hidden;";
+			},
+			set_focused_classNames__: function(){
+				var v = this.focused_classNames.split(/\ /i);
+				//this.focused_class
 			},
 			set_focused: function( vtarget = false ){
 				if( this.td_sel_cnt > 1 ){
@@ -2968,20 +3142,30 @@ var app = s__({
 					if( v.getAttribute("data-id") == "root" ){
 						console.log( "root element");
 						console.log( "testing..." );
+						console.log( v );
 						console.log( v.childNodes );
 						for( var i=0;i<v.childNodes.length;i++ ){
 							console.log( v.childNodes[i].nodeName );
 							if( v.childNodes[i].nodeName == "#text" ){
 								var vl = this.frame.document.createElement("div");
-								vl.innerHTML = v.nodeValue;
-								v.innerHTML = "";
-								v.appendChild( vl );
+								console.log("====" + v.childNodes[i].nodeValue );
+								if( v.childNodes[i].nodeValue.trim() != "" ){
+									vl.innerHTML = v.nodeValue;
+									v.childNodes[i].remove();
+									v.appendChild( vl );
+									console.log("Appended child");
+								}
+							}else if( v.childNodes[i].nodeName == "BR" ){
+								v.childNodes[i].outerHTML = "<div class=\"container\"><div>Initial Div</div></div>";
+								console.log("Initialized child");
 							}
 						}
+						//return ;						
 						var v = this.frame.document.getElementById("editor_div");
 						if( v.childNodes.length == 0 ){
 							var vl = this.frame.document.createElement("div");
-							vl.innerHTML = "Initial div tag";
+							vl.className = "container";
+							vl.innerHTML = "<div>Initial Div</div>";
 							v.appendChild( vl );
 							this.focused = vl;
 						}else{
@@ -3001,7 +3185,8 @@ var app = s__({
 					});
 					this.focused = v;
 					this.focused_type = this.focused.nodeName;
-					this.focused_className = (v.hasAttribute("data-block-type")?v.getAttribute("data-block-type"):v.className);
+					//this.set_focused_classNames__();
+					// = v.className;
 					var atr = v.getAttributeNames();
 					var atrs = {};
 					for( var ii=0;ii<atr.length;ii++){
@@ -3034,6 +3219,12 @@ var app = s__({
 						this.focused_block = this.focused.parentNode;
 						this.focused_block_type = "NOTE";
 					}}catch(e){}
+					this.focused_app = false;
+					this.focused_app_type = "";
+					if( this.focused.hasAttribute("data-app") ){
+						this.focused_app_type = this.focused.getAttribute("data-app");
+						this.focused_app = this.focused;
+					}
 					if( this.focused.hasAttribute("data-block-type") ){
 						if( this.focused.getAttribute("data-block-type") ){
 							this.focused_block = this.focused;
@@ -3103,6 +3294,9 @@ var app = s__({
 					}
 					}
 				}
+				// if( this.focused_app ){
+				// 	this.focused_app_set_bounds();
+				// }else 
 				if( is_sel == false ){
 					this.focused_block_set_bounds();
 				}
@@ -3142,15 +3336,20 @@ var app = s__({
 						return false;
 					}
 				}
-				if( this.focused_block ){
-					var v = this.focused_block.getBoundingClientRect();
-				}else{
-					var v = this.focused.getBoundingClientRect();
-				}
+				var v = this.focused.getBoundingClientRect();
 				var sy = Number(this.frame.scrollY);
 				var sx = Number(this.frame.scrollX);
 				var l=Number(v.left);var t=Number(v.top); var w=Number(v.width); var h=Number(v.height); var b=Number(v.bottom); var r=Number(v.right);
 				this.vmttt = "top:"+(t+sy)+"px;left:"+(l+sx)+"px;width:"+(w)+"px;height:"+(h)+"px";
+			},
+			focused_app_set_bounds: function(){
+				console.log("focused app set bounds");
+				var v = this.focused_app.getBoundingClientRect();
+				var sy = Number(this.frame.scrollY);
+				var sx = Number(this.frame.scrollX);
+				var l=Number(v.left);var t=Number(v.top); var w=Number(v.width); var h=Number(v.height); var b=Number(v.bottom); var r=Number(v.right);
+				this.vmttt = "top:"+(t+sy)+"px;left:"+(l+sx)+"px;width:"+(w)+"px;height:"+(h)+"px; pointer-events:all; background-color:rgba(255,255,255,0.5);";
+				this.vmtt22 = "visibility:none;";
 			},
 			focused_tds_set_bounds: function(){
 				console.log("focused set bounds");
@@ -3454,7 +3653,7 @@ var app = s__({
 							return false;
 						}
 						e.preventDefault();
-						this.echo__( vsections );
+						//this.echo__( vsections );
 						if( vsections.length==1 && vsections[0].substr(0,3).toLowerCase() == "<ul" ){
 							var vnew_ul = this.frame.document.createElement("div");
 							vnew_ul.innerHTML = vsections[0].replace(/[\r\n\t]+/g,"");;
@@ -4505,17 +4704,22 @@ var app = s__({
 				this.image_blob = vimg;
 			},
 			link_suggest_select: function( vd ){
-			}
-		
+			},
 
+			edit_app_component_settings: function(){
+				this.tag_settings_popup_title = "APP Settings: " + this.focused_app_type;
+				this.tag_settings_type = this.focused_app_type;
+				this.tag_settings_popup_modal = new bootstrap.Modal(document.getElementById('tag_settings_popup'));
+				this.tag_settings_popup_modal.show();
+			},
+			focused_app_update_event: function(v){
+				this.focused_app.outerHTML = v+'';
+			}
 
 	}
 });
 
 <?php foreach( $components as $i=>$j ){ ?>
-	app.component( "<?=$j ?>", <?=$j ?> );
-<?php } ?>
-<?php foreach( $plugins as $i=>$j ){ ?>
 	app.component( "<?=$j ?>", <?=$j ?> );
 <?php } ?>
 app.mount("#app");

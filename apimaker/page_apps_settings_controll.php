@@ -23,7 +23,7 @@ if( $_POST['action'] == "app_update_name" ){
 	}
 	$res = $mongodb_con->find_one( $config_global_apimaker['config_mongo_prefix'] . "_apps", [
 		'app'=>$name,
-		'_id'=>['!=', $config_param1]
+		'_id'=>['$ne'=>$config_param1]
 	]);
 	if( $res['data'] ){
 		json_response(['status'=>"fail", "error"=>"An app already exists with same name"]);
@@ -52,7 +52,18 @@ if( $_POST['action'] == "settings_load_pages" ){
 		'limit'=>200,
 		'projection'=>['version_id'=>1,'name'=>1]
 	]);
-	json_response($res);
+	$res2 = $mongodb_con->find( $config_global_apimaker['config_mongo_prefix'] . "_files", [
+		'app_id'=>$config_param1
+	],[
+		'sort'=>['path'=>1,'name'=>1],
+		'limit'=>200,
+		'projection'=>['path'=>1,'name'=>1]
+	]);
+	json_response([
+		"status"=>"success",
+		"pages"=>$res['data'],
+		"files"=>$res2['data'],
+	]);
 }
 
 if( $_POST['action'] == "app_save_custom_settings" ){
@@ -67,7 +78,9 @@ if( $_POST['action'] == "app_save_custom_settings" ){
 	}
 	if( $settings['host'] ){
 		if( !isset($settings['domains']) ){
-			json_response("fail", "Incorrect data. Domain settings missing.");
+			json_response("fail", "Incorrect data. URL settings missing.");
+		}else if( sizeof($settings['domains']) == 0 ){
+			json_response("fail", "Incorrect data. URL settings missing.");
 		}
 		foreach( $settings['domains'] as $i=>$j ){
 			if( !preg_match("/^(https\:\/\/www\.|http\:\/\/www\.|https\:\/\/|http\:\/\/)(localhost|[0-9\.]{7,15}|[a-z0-9\-\.]{3,200}\.[a-z\.]{2,10})[\:0-9]*\/[a-z0-9\.\-\_\.\/]*/i", $j['url']) ){
@@ -82,6 +95,8 @@ if( $_POST['action'] == "app_save_custom_settings" ){
 			$settings['domains'][ $i ]['path'] = $v['path'];
 		}
 		if( !isset($settings['keys']) ){
+			json_response("fail", "Incorrect data. Key settings missing.");
+		}else if( sizeof($settings['keys']) == 0 ){
 			json_response("fail", "Incorrect data. Key settings missing.");
 		}
 		foreach( $settings['keys'] as $i=>$j ){
@@ -107,6 +122,8 @@ if( $_POST['action'] == "app_save_custom_settings" ){
 				}
 			}
 		}
+	}else{
+		$settings['domains'] = [];$settings['keys'] = [];
 	}
 
 	$res = $mongodb_con->update_one( $config_global_apimaker['config_mongo_prefix'] . "_apps", [
@@ -155,6 +172,31 @@ if( $_POST['action'] == "app_save_cloud_settings" ){
 		}
 	}
 
+	$cloud_record = false;
+	$alias_record = false;
+	if( isset($settings['cloud']) && $settings['cloud'] ){
+		$res = $mongodb_con->find_one( $config_global_apimaker['config_mongo_prefix'] . "_cloud_domains", [
+			'_id'=>$settings['cloud-subdomain'].".".$settings['cloud-domain']
+		]);
+		if( $res['data'] ){
+			$cloud_record = true;
+			if( $res['data']['app_id'] != $config_param1 ){
+				json_response(['status'=>"fail", "error"=>"Cloud domain already in use"]);
+			}
+		}
+	}
+	if( isset($settings['alias']) && $settings['alias'] ){
+		$res = $mongodb_con->find_one( $config_global_apimaker['config_mongo_prefix'] . "_cloud_domains", [
+			'_id'=>$settings['alias-domain']
+		]);
+		if( $res['data'] ){
+			$alias_record = true;
+			if( $res['data']['app_id'] != $config_param1 ){
+				json_response(['status'=>"fail", "error"=>"Alias domain already in use"]);
+			}
+		}
+	}
+
 	$res = $mongodb_con->update_one( $config_global_apimaker['config_mongo_prefix'] . "_apps", [
 		'_id'=>$config_param1
 	], [
@@ -172,6 +214,31 @@ if( $_POST['action'] == "app_save_cloud_settings" ){
 		json_response( $res );
 	}
 
+	if( $cloud_record ){
+		$res = $mongodb_con->update_one( $config_global_apimaker['config_mongo_prefix'] . "_cloud_domains", [
+			'_id'=>$settings['cloud-subdomain'].".".$settings['cloud-domain']
+		], [
+			'app_id'=>$config_param1,
+		]);
+	}else{
+		$res = $mongodb_con->insert( $config_global_apimaker['config_mongo_prefix'] . "_cloud_domains", [
+			'_id'=>$settings['cloud-subdomain'].".".$settings['cloud-domain'],
+			'app_id'=>$config_param1,
+		]);
+	}
+	if( $alias_record ){
+		$res = $mongodb_con->update_one( $config_global_apimaker['config_mongo_prefix'] . "_cloud_domains", [
+			'_id'=>$settings['alias-domain']
+		], [
+			'app_id'=>$config_param1,
+		]);
+	}else{
+		$res = $mongodb_con->insert( $config_global_apimaker['config_mongo_prefix'] . "_cloud_domains", [
+			'_id'=>$settings['alias-domain'],
+			'app_id'=>$config_param1,
+		]);
+	}
+
 	update_app_pages( $config_param1 );
 
 	json_response([
@@ -182,27 +249,42 @@ if( $_POST['action'] == "app_save_cloud_settings" ){
 
 if( $_POST['action'] == "app_save_other_settings" ){
 
-	$homepage = $_POST['homepage'];
-
-	if( !isset($homepage) ){
+	if( !isset($_POST['homepage']) ){
 		json_response("fail", "Incorrect data. Page settings missing.");
 	}
-	if( !preg_match("/^([a-f0-9]{24})\:([a-f0-9]{24})$/", $homepage['v'], $m) ){
-		json_response("fail", "Incorrect data. Incorrect format.");
-	}
+
+	$homepage = $_POST['homepage'];
+
 	//print_r($m);exit;
-	$res = $mongodb_con->find_one( $config_global_apimaker['config_mongo_prefix'] . "_pages", [
-		'_id'=>$m[1]
-	]);
-	if( !$res['data'] ){
-		json_response("fail", "Page not found.");
-	}
-	$res = $mongodb_con->find_one( $config_global_apimaker['config_mongo_prefix'] . "_pages_versions", [
-		'_id'=>$m[2],
-		'page_id'=>$m[1]
-	]);
-	if( !$res['data'] ){
-		json_response("fail", "Page Version not found.");
+	if( $homepage['t'] == "page" ){
+		if( !preg_match("/^([a-f0-9]{24})\:([a-f0-9]{24})$/", $homepage['v'], $m) ){
+			json_response("fail", "Incorrect data. Incorrect format.");
+		}
+		$res = $mongodb_con->find_one( $config_global_apimaker['config_mongo_prefix'] . "_pages", [
+			'_id'=>$m[1]
+		]);
+		if( !$res['data'] ){
+			json_response("fail", "Page not found.");
+		}
+		$res = $mongodb_con->find_one( $config_global_apimaker['config_mongo_prefix'] . "_pages_versions", [
+			'_id'=>$m[2],
+			'page_id'=>$m[1]
+		]);
+		if( !$res['data'] ){
+			json_response("fail", "Page Version not found.");
+		}
+	}else if( $homepage['t'] == "file" ){
+		if( !preg_match("/^[a-f0-9]{24}$/", $homepage['v']) ){
+			json_response("fail", "Incorrect data. Incorrect format.");
+		}
+		$res = $mongodb_con->find_one( $config_global_apimaker['config_mongo_prefix'] . "_files", [
+			'_id'=>$homepage['v']
+		]);
+		if( !$res['data'] ){
+			json_response("fail", "File not found.");
+		}
+	}else{
+		json_response("fail", "Incorrect home page type");
 	}
 
 	$res = $mongodb_con->update_one( $config_global_apimaker['config_mongo_prefix'] . "_apps", [
@@ -257,9 +339,9 @@ if( !$app['settings'] ){
 		"host"=>false,
 		"domains"=>[
 			[
-				"domain"=>$_SERVER['HTTP_HOST'],
-				"url"=>"http://".$_SERVER['HTTP_HOST']."/engine/",
-				"path"=>"/engine/"
+				"domain"=>"www.example.com",
+				"url"=>"http://www.example.com/path/",
+				"path"=>"/path/"
 			]
 		],
 		"keys"=>[
@@ -295,10 +377,14 @@ $loc = [
 
 $engined = "";
 $enginep = "";
+$default_app = false;
 foreach( $loc as $i=>$j ){
 	if( file_exists($j) ){
 		$enginep = $j;
 		$engined = file_get_contents($j);
+		if( preg_match("/". $config_param1 . "/", $engined) ){
+			$default_app = true;
+		}
 		break;
 	}
 }

@@ -45,12 +45,30 @@
 		border-top:1px solid black; 
 		font-weight:bold; text-align:center;
 	}
+	.save_block_aa{
+		position:fixed; 
+		bottom:0px; left:10px; z-index:600; 
+		background-color:white; color:black; 
+		height:40px; padding:3px; 
+		width:calc( 100% - 20px ); 
+		border-top:1px solid black; 
+		font-weight:bold; text-align:center;
+	}
 	.save_block_b{
 		position:fixed; 
 		bottom:0px; left:150px; z-index:1001; 
 		background-color:orange; color:white; 
 		height:40px; padding:3px; 
 		width:calc( 100% - 180px );  
+		border-top:1px solid red; 
+		font-weight:bold;
+	}
+	.save_block_bb{
+		position:fixed; 
+		bottom:0px; left:10px; z-index:1001; 
+		background-color:orange; color:white; 
+		height:40px; padding:3px; 
+		width:calc( 100% - 20px );  
 		border-top:1px solid red; 
 		font-weight:bold;
 	}
@@ -72,6 +90,15 @@
 		-webkit-box-flex: 0;
 		min-height:20px;
 	}
+	.mycol1d{
+		position:relative;
+		width:10px;
+		min-height:20px;
+	}
+	.disable_btn{ width:10px; min-height:20px; background-color:#f8f8f8; cursor:pointer; align-self: stretch; }
+	.disable_btn:hover{ background-color:#aaa; }
+	.enable_btn{ width:10px; min-height:20px; background-color:#aaa; cursor:pointer; align-self: stretch; }
+	.enable_btn:hover{ background-color:#f8f8f8; }
 	.mycol11{
 		position:relative;
 		width:25px;
@@ -99,6 +126,7 @@
 		max-width:calc( 100% - 110px );;
 		-webkit-box-flex:1;
 	}
+	
 	.mycolv{
 		width:98%; max-height:200px; overflow:auto; resize:both;
 	}
@@ -187,7 +215,7 @@
 		background-color: #f8f8f0; color:#666; border:1px solid #f0f0e8; padding:0px 5px;
 	}
 
-	.code_row{ display:flex; gap:5px; align-items:flex-start; white-space:nowrap; }
+	.code_row{ display:flex; gap:5px; align-items:flex-start; white-space:nowrap; min-width: max-content; }
 	.code_line [data-type=dropdown]:empty:before{content: "\feff";}
 	.code_line [data-type=dropdown]{
 		display: inline-block; position: relative;
@@ -249,7 +277,7 @@
 
 	.code_line pre[data-type=objecteditable]{
 		cursor:pointer; min-height:50px; max-height:300px;
-		min-width:200px; max-width:300px; overflow:auto; background-color:#fffced; 
+		min-width:200px; max-width:500px; overflow:auto; background-color:#fffced; 
 		border:1px solid #eae0ad; padding-left:10px; padding-right:20px; resize:both;
 	}
 	.code_line pre[data-type=objecteditable]:empty:before{content: "\feff";}
@@ -323,7 +351,7 @@
 	.code_line .varsub{ background-color:#fff1ec; border:1px solid #ffbaa0; }
 	.code_line .varsub:hover{ background-color:#ffd6eb; }	
 
-	.varsub-inputs{ border-left:1px solid #ffa56a; padding-left:5px; display:inline-grid; grid-gap: 5px 10px; grid-template-columns: auto auto;  }
+	.varsub-inputs{ border:1px solid #ffa56a; margin-top:-2px; padding:5px; display:inline-grid; grid-column-gap: 5px; grid-template-columns: auto auto auto;  }
 
 	.code_line .thing_type{
 		color:#999;
@@ -346,8 +374,13 @@
 		min-width:50px;
 		padding-left:5px;padding-right:10px;
 		outline: 0px; display: inline-block;
-		max-width:300px;overflow: hidden;
+		max-width:400px;overflow: auto;
 	}
+	.code_line .editable [contenteditable]::-webkit-scrollbar{width: 5px;height:5px;}
+	.code_line .editable [contenteditable]::-webkit-scrollbar-track {background:#dabbbb;cursor: default;}
+	.code_line .editable [contenteditable]::-webkit-scrollbar-thumb {background:#be8989;cursor: pointer;}
+	.code_line .editable [contenteditable]::-webkit-scrollbar-thumb:hover {background:#8f5050;}
+	
 	.code_line .editable .editabletextarea{
 		min-width:150px; min-height:60px; white-space: nowrap;
 		max-width:300px; max-height:200px; overflow: auto; resize:both;
@@ -412,6 +445,14 @@
 	    }
     } 
 
+    .mycol3disabled{
+		background-color: #ccc;
+	}
+	.mycol3disabled *{
+		color:#999;
+		background-color: #ccc;
+	}
+
 
     .test_loader2 {
 	  width: 60px;
@@ -474,5 +515,8 @@
 
 .help-div{ display:inline; padding:2px; cursor:pointer; background-color:#f8f8f8; padding:0px 5px; }
 .help-div:hover{ font-weight:bold; background-color:#e0e0e0; }
+
+.help-div2{ display:inline; padding:2px; cursor:pointer; background-color:#f8f8f8; padding:0px 5px; }
+.help-div2:hover{ font-weight:bold; background-color:#e0e0e0; }
 
 </style>

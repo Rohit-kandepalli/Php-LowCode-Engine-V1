@@ -14,6 +14,8 @@
 			break;
 		}
 	}
+	$v = pathinfo($_SERVER['PHP_SELF'] );
+	$hosting_path = $v['dirname'];
 	if( !$config_global_apimaker_engine ){
 		if( $_SERVER['REQUEST_METHOD'] == "GET" ){
 			if( file_exists("__install.php") ){
@@ -117,10 +119,16 @@
 	function url_repl($m){
 		return "\\" . $m[0];
 	}
+
 	$url_parts = parse_url( $path );
+	if( isset($url_parts['path']) ){
+		$path_params = explode("/", $url_parts['path'] );
+	}else{
+		$path_params = [];
+	}
 
 	$url_inputs = [];
-	if( $_GET["version_id"] ){
+	if( isset($_GET["version_id"]) ){
 		$res = $mongodb_con->find_one($db_prefix."_apis_versions", ["_id"=>$_GET['version_id']] );
 		if( $res['data'] ){ $api_version = $res['data']; }else{
 			http_response_code(404);echo "API Version not found!";exit;
@@ -129,7 +137,7 @@
 		$api_id = $api_version['api_id'];
 		$url_page_id = "";
 		$page_type = "api";
-	}else if( $_GET["page_version_id"] ){
+	}else if( isset($_GET["page_version_id"]) ){
 		$res = $mongodb_con->find_one($db_prefix."_pages_versions", ["_id"=>$_GET['page_version_id']] );
 		if( $res['data'] ){ $page_version = $res['data']; }else{
 			http_response_code(404);echo "API Version not found!";exit;
@@ -138,7 +146,7 @@
 		$page_id = $page_version['page_id'];
 		$url_page_id = "";
 		$page_type = "api";
-	}else if( $_GET["function_version_id"] ){
+	}else if( isset($_GET["function_version_id"]) ){
 		$res = $mongodb_con->find_one($db_prefix."_functions_versions", ["_id"=>$_GET['function_version_id']] );
 		if( $res['data'] ){ $api_version = $res['data']; }else{
 			http_response_code(404);echo "API Version not found!";exit;
@@ -213,25 +221,32 @@
 			// exit;
 		}
 
-		//	echo "<pre>";print_r( $config_app );exit;
-		//	echo $path; exit;
+		// echo "<pre>";print_r( $config_app );exit;
+		// echo $path; exit;
+		// print_r( $path_params );exits;
+
+		if( isset($path_params[0]) && $path_params[0] == "_api" ){
+			require("index_engine_api.php");
+			exit;
+		}
 
 		if( $path != "home" && !isset($config_app['pages'][ $path ]) ){
 			http_response_code(404);echo "Path not found! ..";exit;
 		}else if( isset($config_app['pages'][ $path ]) ){
 			//echo "path found";exit;
 		}else if( $path == "home" ){
-			$version_id = explode(":",$config_app['settings']['homepage']['v'])[0];
-			//echo "xx".$version_id;
-			$res = $mongodb_con->find_one($db_prefix."_pages", [ "_id"=>$version_id ], ['projection'=>['version_id'=>1]] );
-			//print_r( $res );
-			if( $res['data'] ){ $version_id = $res['data']['version_id']; }else{
-				http_response_code(404);echo "Page Version not found! ..";exit;
+			if( $config_app['settings']['homepage']['t'] == "page" ){
+				$version_id = explode(":",$config_app['settings']['homepage']['v'])[0];
+				$config_app['pages'][ "home" ] = [
+					't'=>'page',
+					'version_id'=>$version_id,
+				];
+			}else{
+				$config_app['pages'][ "home" ] = [
+					't'=>'file',
+					'_id'=>$config_app['settings']['homepage']['v'],
+				];
 			}
-			$config_app['pages'][ "home" ] = [
-				't'=>'page',
-				'version_id'=>$version_id,
-			];
 		}
 		//echo "<pre>";print_r( $config_app );exit;
 		$page_type = $config_app['pages'][ $path ]['t'];
@@ -268,8 +283,8 @@
 		header( "Cache-Control: no-store, no-cache, must-revalidate, max-age=0" );
 		header( "Cache-Control: post-check=0, pre-check=0", false );
 		header( "Pragma: no-cache" );
-		require("index_page.php");
-	}else if( $page_type == "api" ){
+		require_once("index_page.php");
+	}else if( $page_type == "api" || $page_type == "function" ){
 		header( "AppCache: " . ($cache_refresh?"Miss":"Hit") );
 		header( "Access-Control-Allow-Origin: *" );
 		header( "Access-Control-Allow-Methods: *" );
@@ -279,26 +294,7 @@
 		header( "Pragma: no-cache" );		
 		require("index_api.php");
 	}else if( $page_type == "file" ){
-		if( !isset($file_version['t']) ){
-			http_response_code(500);
-			echo "Incorrect file type";
-			exit;
-		}
-		header("Content-Type: "  . $file_version['type']);
-		header( "Cache-Control: no-store, no-cache, must-revalidate, max-age=0" );
-		header( "Cache-Control: post-check=0, pre-check=0", false );
-		header( "Pragma: no-cache" );		
-		if( $file_version['t'] == "inline" ){
-			echo $file_version['data'];
-		}else if( $file_version['t'] == "base64" && preg_match("/^image/i", $file_version['type']) ){
-			echo base64_decode($file_version['data']);exit;
-		}else if( $file_version['t'] == "base64" ){
-			echo base64_decode($file_version['data']);exit;
-		}else{
-			http_response_code(500);
-			echo "Incorrect file type";
-			exit;
-		}
+		require_once("index_file.php");
 	}else{
 		http_response_code(403);
 		echo "Incorrect engine type! " . $page_type;

@@ -29,12 +29,12 @@ pre.sample_data::-webkit-scrollbar-thumb:hover { background: #555;}
 </style>
 <div id="app" >
 	<div class="leftbar" >
-		<?php require("page_apps_leftbar.php"); ?>
+		<?php require( "page_apps_leftbar.php" ); ?>
 	</div>
 	<div style="position: fixed;left:150px; top:40px; height: calc( 100% - 40px ); width:calc( 100% - 150px ); background-color: white; " >
 		<div style="padding: 10px;" >
 
-			<div style="float:right;"><a class="btn btn-outline-secondary btn-sm" v-bind:href="dbpath">Back</a></div>
+			<div style="float:right;"><a class="btn btn-outline-secondary btn-sm" v-bind:href="path+'tables_dynamic'">Back</a></div>
 
 			<h4>Table - Create from File</h4>
 
@@ -56,7 +56,8 @@ pre.sample_data::-webkit-scrollbar-thumb:hover { background: #555;}
 				</div>
 				<div v-if="step==2" >
 					<input type="button" class="btn btn-outline-dark btn-sm" v-on:click="cancel_step2" value="Cancel" style="float:right;">
-					<input v-if="tot_cnt<=20000" type="button" class="btn btn-outline-dark btn-sm" v-on:click="doimport" value="Import" style="float:right; margin-right: 10px;">
+					<div v-if="analyzing" style="color:blue; float:right; margin-right: 20px;" >Analyzing file</div>
+					<input v-else-if="tot_cnt<=20000" type="button" class="btn btn-outline-dark btn-sm" v-on:click="doimport" value="Import" style="float:right; margin-right: 10px;">
 
 					<div style="display: flex; gap:20px;">
 						<div>
@@ -137,21 +138,26 @@ pre.sample_data::-webkit-scrollbar-thumb:hover { background: #555;}
 										<td>Table Field</td>
 										<td>Type</td>
 										<td>Mandatory</td>
+										<td>PrimaryIndex</td>
 									</tr>
 								</thead>
 								<tbody>
 									<tr v-for="fd,f in sch_keys" >
-										<td><input type="checkbox" v-model="fd['use']" ></td>
+										<td><input type="checkbox" v-model="fd['use']" v-on:click="use_check(f)" ></td>
 										<td>{{ fd['csvf'] }}</td>
 										<td>=&gt;</td>
-										<td><span v-if="fd['use']" >{{ f }}</span></td>
+										<td><input v-if="f!='_default_id'" type="text" v-model="fd['targetf']" v-if="fd['use']" >
+											<span v-else>_id</span>
+										</td>
 										<td>
-											<select v-if="fd['use']" v-model="fd['type']" >
+											<select v-if="fd['use']&&f!='_default_id'" v-model="fd['type']" >
 											<option value="text" >Text</option>
 											<option value="number" >Number</option>
 											</select>
+											<span v-else-if="fd['use']&&f=='_default_id'" >ObjectID</span>
 										</td>
-										<td><input v-if="fd['use']" type="checkbox" v-model="fd['m']" ></td>
+										<td><input v-if="fd['use']&&f!='_default_id'" type="checkbox" v-model="fd['m']" ></td>
+										<td><input v-if="fd['use']" type="checkbox" v-model="fd['primary']" v-on:click="primary_check(f)" ></td>
 									</tr>
 								</tbody>
 							</table>
@@ -167,8 +173,8 @@ pre.sample_data::-webkit-scrollbar-thumb:hover { background: #555;}
 				</div>
 				<div v-if="step==4" >
 					<div class="row mb-2">
-						<div class="col-6">Progress <span style="font-size:1.5rem;">{{ upload_progress }} %</span></div>
-						<div class="col-6">Uploaded <span style="font-size:1.5rem;">{{ upload_cnt }}/{{ tot_cnt }}</span></div>
+						<div class="col-6">Progress <span style="font-size:1.5rem;">{{ upload_progress }} %</span> </div>
+						<div class="col-6">Uploaded <span style="font-size:1.5rem;">{{ upload_cnt }}/{{ tot_cnt }}</span> </div>
 					</div>
 					<div class="row mb-2">
 						<div class="col-6">Success <span class="b-400" >{{ upload_success_cnt }}</span></div>
@@ -188,6 +194,8 @@ pre.sample_data::-webkit-scrollbar-thumb:hover { background: #555;}
 					</div>
 
 				</div>
+
+
 			</div>
 			<div style="height: 30px; padding-right:10px;" >
 				<div v-if="msg" >{{ msg }}</div>
@@ -197,10 +205,6 @@ pre.sample_data::-webkit-scrollbar-thumb:hover { background: #555;}
 
 		</div>
 	</div>
-
-
-
-
 </div>
 
 <script>
@@ -223,10 +227,7 @@ var app = Vue.createApp({
 			"step": 1,
 			"tot_cnt": 0,
 			"sch_keys": {}, "sch_ikeys": {},
-			"add_table": {
-				"table": "",
-				"des": ""
-			},
+			"add_table": {"table": "", "des": ""},
 			"fields_match": {}, "keys_match": {},
 			"sample_data": "",
 			"upload_progress": 0,
@@ -238,6 +239,7 @@ var app = Vue.createApp({
 			"new_table_id": "",
 			"schema_1": {},
 			"schema_2": {},
+			"analyzing":false,
 		};
 	},
 	mounted : function(){
@@ -369,11 +371,15 @@ var app = Vue.createApp({
 			var p = 0;
 			var r = [];
 			var cnt = 0;
-			while( p<d.length-1 ){cnt++;if( cnt > 100 ){break;}
+			while( p<d.length-1 ){cnt++;if( cnt > 1000 ){break;}
 				//console.log("Pos:"+p);
 				var dd = d.substr( p, 200 );
 				//console.log( dd );
 				if( dd.trim() == "" ){
+					console.log(  (this.fpos +p) + " >= " + (this.filedata.length - 10) );
+					if( this.fpos +p >= this.filedata.length - 10 ){
+						r.push( "" );p++;this.fpos += p; return r;
+					}
 					break;
 				}
 				if( dd.substr(0,1) == "," ){
@@ -402,7 +408,10 @@ var app = Vue.createApp({
 					}
 				}
 			}
-			console.log("Read line failed with max loops");
+			if( this.fpos +p >= this.filedata.length - 10 ){
+				r.push( "" );p++;this.fpos += p; return r;
+			}
+			console.log("Read line failed with max loops: " + cnt);
 			return "Failed";
 		},
 		cancel_step2: function(){
@@ -416,13 +425,13 @@ var app = Vue.createApp({
 			this.tot_cnt = 0;
 		},
 		checkfile: function(){
-
+			this.analyzing = true;
 			if( this.upload_type == "CSV" ){
 				var d = this.filedata.substr(0,1024);
 				var line = d.split("\n")[0];
 				//console.log( line );
 				var fields = line.split(",");
-				if( fields.length < 3 ){
+				if( fields.length < 2 ){
 					alert("File is not in CSV Format");
 					this.err = "File is not in CSV Format";
 					console.log( d );
@@ -482,23 +491,59 @@ var app = Vue.createApp({
 				}}
 				if( i == 20 ){
 					setTimeout(this.checkfile_json_continue,500);
-				}
+				}else{this.analyzing = false;}
 				this.echo__( this.schema_1 );
 				this.sample_records = recs;
 				this.step = 2;
 			}
 		},
+		use_check: function(vf){
+			setTimeout(this.use_check2,100,vf);
+		},
+		use_check2: function(vf){
+			if( vf == "_default_id" ){
+				if( this.sch_keys["_default_id"]['use'] ){
+					this.sch_keys["_default_id"]['primary'] = true;
+					this.primary_check2("_default_id");
+				}
+			}
+		},
+		primary_check: function(vf){
+			setTimeout(this.primary_check2,100,vf);
+		},
+		primary_check2: function(vf){
+			if( this.sch_keys[ vf ]['primary'] ){
+				this.sch_keys[ vf ]['targetf'] = "_id";
+				this.sch_keys[ vf ]['m'] = true;
+			}else{
+				this.sch_keys[ vf ]['targetf'] = vf+'';
+			}
+			for( var i in this.sch_keys ){
+				if( i != vf ){
+					if( this.sch_keys[ i ]['targetf' ] == "_id" ){
+						this.sch_keys[ i ]['primary' ] = false;
+						this.sch_keys[ i ]['targetf' ] = i+'';
+					}
+					this.sch_keys[ i ]['primary'] = false;
+					if( i == "_default_id" ){
+						this.sch_keys[ i ]['use'] = false;
+					}
+				}
+			}
+		},
 		checkfile_json_continue: function(){
-			for(var i=0;i<20;i++){if( this.fpos < this.filedata.length-1 ){
+			while(1){
+				if( this.fpos >= this.filedata.length-1 ){this.analyzing = false;break;}
 				var ipos = this.filedata.indexOf("\n", this.fpos+1);
 				if( ipos == -1 ){
+					this.analyzing = false;
 					console.log("File end not found");
-					return;
+					break;
 				}else{
 					this.fpos=ipos;
 					this.tot_cnt++;
 				}
-			}}
+			}
 		},
 		checkfile_csv: function(){
 			this.err = "";
@@ -514,14 +559,20 @@ var app = Vue.createApp({
 			//return;
 			if( d === false ){ alert("Failed reading csv"); return false; }
 			if( typeof(d) == "object"){
+				for( i in d ){
+					d[i] = d[i].toLowerCase();
+				}
 				this.head_record = d;
 				this.fields_match = {};
 				this.sch_keys = {};
+				this.sch_keys[ "_default_id" ] = {
+					"type": "ObjectID", "map": -1, "csvf": "", "targetf": "_id", "use": true, "m": true, "primary": true,
+				}
 				for(var vf in d ){
 					this.fields_match[ d[vf] ] = vf;
 					var k = d[vf].trim().replace(/\W/g,'');
 					this.sch_keys[ k ] = {
-						"type": "text", "map": vf, "csvf": d[vf], "use": true, "m": true,
+						"type": "text", "map": vf, "csvf": d[vf], "targetf": d[vf], "use": true, "m": true, "primary": false,
 					}
 				}
 			}else{
@@ -544,7 +595,7 @@ var app = Vue.createApp({
 			}
 			if( i == 100 ){
 				setTimeout(this.checkfile_csv_continue,500);
-			}
+			}else{this.analyzing = false;}
 			this.sample_records = recs;
 			this.step = 2;
 			if( r_cnt != c_cnt ){ this.err = "Header and records column count not same."; }
@@ -561,10 +612,10 @@ var app = Vue.createApp({
 		checkfile_csv_continue: function(){
 			while( 1 ){
 				var d = this.readcsvline();
-				console.log( d );
 				if( typeof(d) == "object" ){
 					this.tot_cnt++;
-				}else if( d == "end" ){ break; }else{ this.err = d; break; }
+				}else if( d == "end" ){ this.analyzing = false; break; }
+				else{ this.analyzing = false; this.err = d; break; }
 			}
 		},
 		openbrowse: function(){
@@ -613,31 +664,6 @@ var app = Vue.createApp({
 			this.err2 = "";
 			this.msg2 = "";
 		},
-		import2_check: function(){
-			this.err2 = "";
-			this.msg2 = "";
-			var cnt = 0;
-			var matched = {};
-			for( var vf in this.sch_keys ){
-				if( this.sch_keys[ vf ]['map'] != "-1" ){
-					if( this.sch_keys[ vf ]['map'] in matched ){
-						this.err2 = "Same field `"+this.sch_keys[ vf ]['map']+"` is mapped multiple times";
-					}else{
-						if( vf != "_id" ){
-							cnt++;
-						}
-						matched[ this.sch_keys[ vf ]['map'] ] = 1;
-					}
-				}
-			}
-			this.echo__(matched);
-			if( Object.keys(this.sch_keys).length > cnt ){
-				this.msg2 = "You have mapped <span class='badge bg-secondary' >" + cnt + "</span> fields out of <span class='badge bg-secondary' >" + Object.keys(this.sch_keys).length + "</span> fields of Table Schema";
-			}
-			if( cnt == 0 ){
-				this.err2 = "at lease one key mapping is required for import";
-			}
-		},
 		cleanit(v){
 			v = v.replace( /\-/g, "DASH" );
 			v = v.replace( /\_/g, "UDASH" );
@@ -648,13 +674,54 @@ var app = Vue.createApp({
 			return v;
 		},
 		doimport2: function(){
-
+			this.err2 = "";
 			this.add_table['table' ] = this.add_table['table' ].trim();
 			if( this.add_table['table' ].match(/^[a-z0-9\.\-\_\ ]{3,25}$/i) == null ){
-				alert("Need table name in [a-z0-9.-_ ]{3,25}"); return false;
+				//alert("Need table name in [a-z0-9.-_ ]{3,25}"); return false;
+				this.err2 = "Need table name in [a-z0-9.-_ ]{3,25}"; return false;
 			}
 			if( this.add_table['des'].match(/^[a-z0-9\.\-\_\&\,\!\@\'\"\ \r\n]{5,200}$/i) == null ){
-				alert( "Need description in [a-z0-9.-_&,!@]{5,200}" ); return false;
+				this.err2 = "Need description in [a-z0-9.-_&,!@]{5,200}"; return false;
+			}
+
+			if( this.upload_type == "CSV" ){
+				var is_prime = false;
+				var pc = 0;
+				var prime_f = -1;var prime_ff = -1;
+				for( var f in this.sch_keys ){if( this.sch_keys[f]['use'] ){
+					if( this.sch_keys[f]['targetf'] == "_id" ){
+						is_prime = true;
+						prime_f = Number(this.sch_keys[f]['map']);
+						prime_ff = f+'';
+						pc++;
+					}
+				}}
+				if( !is_prime ){
+					this.err2 = "Need at least one primary field mapped to _id"; return false;
+				}else if( pc > 1 ){
+					this.err2 = "Only one field should be mapped to _id"; return false;
+				}else if( prime_f == -1 && prime_ff != "_default_id" ){
+					this.err2 = "Primary field not selected"; return false;
+				}
+
+				this.fpos =0;
+				if( prime_f != -1 ){
+					var keys = {};
+					var rcnt = 0;
+					while( 1 ){
+						var d = this.readcsvline();
+						rcnt++;
+						if( typeof(d) == "object" ){
+							if( d[prime_f] in keys == false ){
+								keys[ d[prime_f] ] = 1;
+							}else{
+								keys[ d[prime_f] ]++;
+								this.err2 = "Primary field value `" + d[prime_f] + "` repeated for record: "+rcnt; return false;
+							}
+						}else if( d == "end" ){ break; }else{ this.err2 = "Failed to read file";return false; break; }
+					}
+				}
+
 			}
 
 			if( this.err2 ){
@@ -749,22 +816,23 @@ var app = Vue.createApp({
 					var rec = {};
 					for( fi in this.sch_keys ){
 						var fd = this.sch_keys[fi];
+						var k = fd['targetf'];
 						if( fd['map'] != "-1" && fd['use'] ){
 							if( d[ Number(fd['map']) ] ){
 								var v = d[ Number(fd['map']) ];
 								if( v != undefined ){
-									rec[ fi ] = v;
+									rec[ k ] = v;
 								}
 								if( fd['type'] == "number" ){
 									if( typeof(v) == "string" ){
-										rec[ fi ] = Number(v);
+										rec[ k ] = Number(v);
 									}else if( typeof(v) == "number" ){
-										rec[ fi ] = v;
+										rec[ k ] = v;
 									}else{
-										rec[ $fi ] = 0;
+										rec[ k ] = 0;
 									}
 								}else{
-									rec[ fi ] = v;
+									rec[ k ] = v;
 								}
 							}
 						}
@@ -906,6 +974,7 @@ var app = Vue.createApp({
 		}
 	}
 });
+
 app.component( "table_dyanmic_object", table_dyanmic_object );
 
 var obj = {
@@ -925,7 +994,9 @@ var obj = {
 		</li>
 	</ul>`
 }
+
 app.component( "obj", obj );
 app.mount("#app");
 
 </script>
+

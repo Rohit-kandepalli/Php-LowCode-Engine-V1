@@ -1,0 +1,31 @@
+<html>
+<head>
+	<title>Page</title>
+	<script src="js/vue3.min.prod.js"></script>
+</head>
+<body><div id="app" ><div>sfs fsd fsdfdsf dsfsdf</div><div><p><br></p><p><br></p></div><div><p>&nbsp;</p><component_auth_default data-app="component_auth_default"></component_auth_default></div>
+</div></body>
+</html>
+<script>
+const component_auth_default = {
+	data: function(){
+		return {
+			"a":1
+		};
+	},
+	template: `<div>
+		<p>component_auth_default sdfsd fsdf dsfdsf sd</p>
+	</div>`
+};var app = Vue.createApp({
+	data: function(){return{
+
+	}},
+	mounted: function(){
+
+	},
+	methods: function(){
+
+	}
+});
+app.use("component_auth_default", component_auth_default);var app1 = app.mount("#app");
+</script>

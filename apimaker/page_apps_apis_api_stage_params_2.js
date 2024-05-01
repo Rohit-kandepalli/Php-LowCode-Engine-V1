@@ -106,7 +106,13 @@ const s2_smarap_egats_gifnoc = {
 			"status": {"t":"T", "v": "success", "k":"status"},
 			"data": {"t":"T", "v": "All is well", "k":"data"},
 		}},
-		"tpl": [{"t":"i1", "m":"."}]
+	},
+	"RespondStatus": {
+		"p": {
+			"status": {"t":"T", "v":"success"},
+			"data": {"t":"T", "v":"Ok"},
+			"error": {"t":"T", "v":""},
+		}
 	},
 	"RespondJSON": {
 		"p": {
@@ -120,6 +126,19 @@ const s2_smarap_egats_gifnoc = {
 	"RespondVar": {
 		"p": {
 			"output":{"t":"V","v":{"v":"","t":"","vs":false} },
+			"raw":{"t":"B","v":"false" },
+		},
+	},
+	"RespondVars": {
+		"p": {
+			"outputs":[
+				{"t":"V", "v":{"v":"","t":"","vs":false} }
+			],
+		},
+	},
+	"RespondGlobals": {
+		"p": {
+			"raw": {"t":"B", "v":"false"}
 		},
 	},
 	"RespondXML": {
@@ -129,6 +148,16 @@ const s2_smarap_egats_gifnoc = {
 				"data": {"t":"T", "v": "All is well", "k":"data"},
 			}},
 			"pretty":{"t":"B", "v":"false"}
+		},
+	},
+	"RespondPage": {
+		"p": {
+			"page":{"t":"TH","v":{"i":{"t":"T", "v":""}, "l":{"t":"T", "v":""}},"th":"Pages"},
+		},
+	},
+	"RespondFile": {
+		"p": {
+			"file":{"t":"TH","v":{"i":{"t":"T", "v":""}, "l":{"t":"T", "v":""}},"th":"Files"},
 		},
 	},
 	"RenderHTML": {
@@ -144,25 +173,22 @@ const s2_smarap_egats_gifnoc = {
 		"p": {"t":"TT", "v":""}
 	},
 	"SetResponseStatus": {
-		"p": {"status":{"t":"N", "v":"200"}},
+		"p": {"statusCode":{"t":"N", "v":"200"}},
 	},
 	"SetResponseHeader": {
-		"p": {"Header":{"t":"T", "v":"X-Header"},"Value":{"t":"T", "v":"X-Value"}},
+		"p": {"header":{"t":"T", "v":"X-Header"},"value":{"t":"T", "v":"X-Value"}},
 	},
 	"SetCookie": {
 		"p": {"Cookie":{"t":"T", "v":"Name"},"Value":{"t":"T", "v":"X-Value"},"Expire":{"t":"N", "v":"86400"}},
 	},
 	"SetLabel": {
 		"p": {"t":"T", "v":""},
-		"tpl": [{"t":"T", "m":"v"}]
 	},
 	"JumpToLabel": {
 		"p": {"t":"T", "v":""},
-		"tpl": [{"t":"D", "list":"lable", "m":"v"}]
 	},
 	"Sleep": {
 		"p": {"t":"N", "v":"1"},
-		"tpl": [{"t":"N", "m":"v"}]
 	},
 	"Log": {
 		"p": {"t":"O", "v":{
@@ -177,31 +203,19 @@ const s2_smarap_egats_gifnoc = {
 			"c": [], // conditions
 			"primary": {"field1": {"t": "S"}, "field2": {"t": "S"}},
 			"indexes": {"index": "one", "t": "S" }
-		},
-	},
-	"Internal-Table": {
-		"p": {
-			"data": {"stage":"initiate"}
 		}
 	},
-	"Elastic-Table": {
-		"p": {
-			"data": {"stage":"initiate"}
-		}
-	},
-	"MongoDb": {
-		"p": {
-			"data": {"stage":"initiate"}
-		}
-	},
-	"MySql": {
-		"p": {
-			"data": {"stage":"initiate"}
-		}
-	},
-	"HTTPRequest": {
-		"p": {
-			"data": {"stage":"initiate"}
-		}
-	}
+	"Internal-Table": {"p":{"data": {"stage":"initiate"}}},
+	"Elastic-Table": {"p":{"data": {"stage":"initiate"}}},
+	"MongoDb": {"p":{"data": {"stage":"initiate"}}},
+	"MySql": {"p":{"data": {"stage":"initiate"}}},
+	"HTTPRequest": {"p":{"data": {"stage":"initiate"}}},
+	"Create-Access-Key": {"p": {"data": {"stage":"initiate"}}},
+	"Generate-Session-Key": {"p": {"data": {"stage":"initiate"}}},
+	"Assume-Session-Key": {"p": {"data": {"stage":"initiate"}}},
+	"Generate-FileUpload-Token": {"p": {
+		"FilePath": {"t":"T", "v": ""},
+		"ContenType": {"t":"T", "v": ""},
+		"Type": {"t":"T", "v": "Binary"},
+	}}
 };

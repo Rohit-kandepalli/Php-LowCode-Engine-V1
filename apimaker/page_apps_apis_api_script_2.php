@@ -1,3 +1,7 @@
+<script src="<?=$config_global_apimaker_path ?>ace/src-noconflict/ace.js" ></script>
+<script src="<?=$config_global_apimaker_path ?>js/beautify-html.js" ></script>
+<script src="<?=$config_global_apimaker_path ?>js/beautify-css.js" ></script>
+<script src="<?=$config_global_apimaker_path ?>js/beautify.js" ></script>
 <script>
 <?php 
 
@@ -18,7 +22,7 @@
 		"mongodbv1", "mongoq", "mongop", "mongop2", "mongod", "mongod2", "mongod3", "mongoq_field", "mongop_field",
 		"mysqldbv1", "mysqlq", "mysqlp", "mysqld", "mysqls", "mysql_field",
 		"internal_table",
-		"httprequest",
+		"httprequest", "akv1", "akgenv1", "akass",
 	];
 
 	foreach( $components as $i=>$j ){
@@ -41,14 +45,19 @@ eval("s2_ssssssssss = " + atob("VnVlLmNyZWF0ZUFwcA=="));
 var app = s2_ssssssssss({
 	data(){
 		return {
+			page_type: "<?=$page_type ?>",
+			property_type: "<?=$property_type ?>",
+			current_ip: '<?=$_SERVER['REMOTE_ADDR'] ?>',
 			path: '<?=$config_global_apimaker_path ?>apps/<?=$config_param1 ?>/',
 			s2_atad_labolg: {"s":"sss"},
-			s2_ggggggggsm: "",
-			s2_rrrrrrrrre: "",
-			s2_gggggggsmc: "",
-			s2_rrrrrrrrec: "",
+			s2_ggggggggsm: "", s2_rrrrrrrrre: "", s2_gggggggsmc: "", s2_rrrrrrrrec: "", s2_gggggggsmi:"", s2_rrrrrrrrei:"",
+			s2_ladom_tropmi: false, "s2_drowssap_tropmi": "", "s2_elif_tropmi": "", "s2_noisrev_tropmi": "create",
+			s2_ladom_noisrev: false,
 			s2_pppppppppa: <?=json_encode($app) ?>,
-			s2_iiiiiiiipa: <?=json_encode($api) ?>,
+			s2_iiiiiiiipa: <?=json_encode($page_type=="apis"?$api:($page_type=="functions"?$function:$code['control']) ) ?>,
+			s2_snoisrev_ipa: <?=json_encode(($page_type=="apis"?$api_versions:($page_type=="functions"?$function_versions:[]))) ?>,
+			s2_di_noisrev: "<?=($page_type=="apis"?$api['_id']:($page_type=="functions"?$function['_id']:$code['_id']) ) ?>",
+			s2_di_noisrev_tnerruc: "<?=($page_type=="apis"?$main_api['version_id']:($page_type=="functions"?$main_function['version_id']:"")) ?>",
 			s2_iiipa_tide: {},
 			s2_ladom_tide: false,
 			s2_nnnnnnekot: "",
@@ -56,7 +65,7 @@ var app = s2_ssssssssss({
 			s2_wwwwwwohsv: false,
 			s2_ssssstsaot: [],
 			"s2_tsoh_revres"			: "<?=$config_page_domain ?>",
-			"s2_nnnnoisrev"			: "<?=$api["_id"] ?>",
+			"s2_nnnnoisrev"			: "<?=($page_type=="apis"?$api["_id"]:($page_type=="functions"?$function["_id"]:$code['_id'])) ?>",
 			"s2_tsil_snoisrev"			: {},
 			"s2_selbat_ipa"			: {},
 			"s2_selbat_cimanyd_ipa"		: {},
@@ -78,13 +87,15 @@ var app = s2_ssssssssss({
 			"s2_gnivas_wohs"			: false,
 			"s2_egassem_evas"		: "Saving..",
 			"s2_ddeen_evas"			: false,
+			"s2_evas_tsrif"			: false,
 			"s2_segats_wohs"			: true,
 			"s2_bat_tset_wohs"		: false,
 			"s2_lluf_rotide_edoc"	: true,
 			"s2_tttttttset"				: {
 				"domain": "",
 				"path": "",
-				"factors": {"t":"O", "v": {}}
+				"factors": {"t":"O", "v": {}},
+				"headers": {"Access-Key": ""},
 			},
 			"s2_sutats_tset"			: "",
 			"s2_rorre_tset"			: "",
@@ -93,6 +104,7 @@ var app = s2_ssssssssss({
 			"s2_gggol_tset"			: [],
 			"s2_gubed_tset"			: false,
 			"s2_gnitiaw_tset"		: false,
+			"s2_ssvne_tset": [],
 			"s2_lllru_tset"			: "",
 			"s2_wweiv_nosj"			: false,
             "s2_sutats_kcol"			: 0,
@@ -183,7 +195,8 @@ var app = s2_ssssssssss({
 						"Assign",
 						"Math",
 						"Expression",
-						"Function"
+						"Function",
+						"Validate",
 					]
 				},
 				{
@@ -204,7 +217,8 @@ var app = s2_ssssssssss({
 					"group": "Output",
 					"sub": [
 						"SetResponseStatus", "SetResponseHeader", "SetCookie",
-						"RespondJSON", "RespondVar", "RespondXML", "AddHTML", "RenderHTML",
+						"RespondStatus",
+						"RespondJSON", "RespondVar", "RespondVars", "RespondGlobals", "RespondXML", "RespondPage", "RespondFile", "AddHTML", "RenderHTML",
 						"Log",
 					]
 				},
@@ -215,7 +229,9 @@ var app = s2_ssssssssss({
 						"APICall",
 						"FunctionCall",
 						"Internal-Table",
-						"Elastic-Table"
+						"Elastic-Table",
+						"Create-Access-Key", 
+						"Generate-Session-Key","Assume-Session-Key"
 					]
 				},
 				{
@@ -273,7 +289,7 @@ var app = s2_ssssssssss({
 			s2_ycnedneped_txetnoc: "",
 			s2_kcabllac_txetnoc: "",
 			s2_le_txetnoc: false,
-			s2_elyts_txetnoc: "top:50px;left:50px;",
+			s2_elyts_txetnoc: "display:none;",
 			s2_di_egats_txetnoc: -1,
 			s2_tsil_txetnoc: [],
 			s2_retlif_tsil_txetnoc: [],
@@ -299,8 +315,11 @@ var app = s2_ssssssssss({
 			s2_tsil_tseggus_pupop: [],
 			s2_ffer_pupop: "",
 			s2_ladom_pupop: false,
+			s2_deyalpsid_ladom_pupop: false,
+			s2_ladom_lmth_pupop: false,
 			s2_tropmi_pupop: false,
 			s2_rts_tropmi_pupop: `{}`,
+			ace_editor2: false,
 			s2_ppupop_cod: false,
 			s2_cod_pupop_cod: "",
 			s2_txet_pupop_cod: "Loading...",
@@ -343,6 +362,7 @@ var app = s2_ssssssssss({
 			}
 		}
 		this.s2_atad_laitini_daol();
+		this.s2_stnemnorivne_tset_tes();
 		//document.addEventListener("mousedown", this.event_mousedown );
 		document.addEventListener("keyup", this.s2_puyek_tneve );
 		document.addEventListener("keydown", this.s2_nwodyek_tneve);
@@ -352,19 +372,269 @@ var app = s2_ssssssssss({
 		window.addEventListener("paste", this.s2_etsap_tneve, true);
 	},
 	methods: {
+		is_test_response_binary: function(){
+			if( this.s2_esnopser_tset['headers']['content-type'].match(/(json|xml|html|plain|text)/i) ){
+				return false;
+			}else{
+				return true;
+			}
+		},
+		s2_eton_noisrev_teg: function(){
+			return "Version: "+ this.s2_iiiiiiiipa['version'] + " " + (this.s2_di_noisrev_tnerruc==this.s2_di_noisrev?"<span class='text-success'>(Active)</span>":"<span class='text-danger'>(NotActive)</span>");
+		},
+		s2_ipa_tropxe: function(){
+			var p = prompt("Password:");
+			if( p.trim()=="" ){
+				alert("password is must");return;
+			}
+			axios.post( "?", {
+				"action": "app_"+this.property_type+"_export",
+				"password": p,
+			}).then(response=>{
+				if( response.status == 200 ){
+					if( typeof(response.data) == "object" ){
+						if( 'status' in response.data ){
+							if( response.data['status'] == "success" ){
+								var vblob = new Blob([response.data['content']], { type: 'text/plain' });
+								var vurl = window.URL.createObjectURL(vblob);
+								var a1 = document.createElement('a');
+								a1.style.display = 'none';
+								a1.href = vurl;
+								a1.download = response.data['filename'];
+								document.body.appendChild(a1);
+								a1.click();
+								window.URL.revokeObjectURL(vurl);
+								a1.remove();
+							}else{
+								alert( "Export Error: " + response.data['error'] );
+							}
+						}else{
+							alert("Incorrect response");
+						}
+					}else{
+						alert("Incorrect response Type");
+					}
+				}else{
+					alert("Response Error: " + response.status );
+				}
+			}).catch(error=>{
+				console.log( error );
+				alert( "Error Exporting" );
+			});
+		},
+		s2_ipa_tropmi_wohs: function(){
+			this.s2_ladom_tropmi = new bootstrap.Modal(document.getElementById('s2_ladom_tropmi'));
+			this.s2_ladom_tropmi.show();
+			this.s2_gggggggsmi = ""; this.s2_rrrrrrrrei = "";
+		},
+		s2_detceles_tropmi: function(){
+			this.s2_elif_tropmi = "";
+			this.s2_rrrrrrrrei = "";
+			var vf = document.getElementById("s2_elif_tropmi").files[0];
+			if( vf.name.match(/\.[a-f0-9]{24}\.api$/) == null ){
+				this.s2_rrrrrrrrei = "Please select a proper file";
+				document.getElementById("s2_elif_tropmi").value = "";
+			}
+			this.s2_elif_tropmi = vf.name+'';
+		},
+		s2_ipa_tropmi: function(){
+			this.s2_rrrrrrrrei = "";
+			this.s2_gggggggsmi = "";
+			if( this.s2_drowssap_tropmi.trim()=="" ){
+				this.s2_rrrrrrrrei = "password is must";return;
+			}
+			if( document.getElementById("s2_elif_tropmi").value == "" ){
+				this.s2_rrrrrrrrei = "select file";return;
+			}
+
+			var vpost = new FormData();
+			var vf = document.getElementById("s2_elif_tropmi").files[0];
+			vpost.append("action", "app_"+this.property_type+"_import");vpost.append("file", vf);
+			vpost.append("password", this.s2_drowssap_tropmi );
+			vpost.append("version", this.s2_noisrev_tropmi );
+			this.s2_gggggggsmi = "Importing...";
+			axios.post("?", vpost).then(response=>{
+				this.s2_gggggggsmi = "";
+				if( response.status == 200 ){
+					if( typeof(response.data) == "object" ){
+						if( 'status' in response.data ){
+							if( response.data['status'] == "success" ){
+								if( this.s2_noisrev_tropmi == "create" ){
+									this.s2_gggggggsmi = "Imported successfully. Redirecting to new version...";
+									setTimeout(function(){document.location = "<?=$config_global_apimaker_path ?>apps/<?=$config_param1 ?>/"+this.page_type+"/<?=$config_param3 ?>/"+response.data['new_version_id']; },1000);
+								}else{
+									this.s2_gggggggsmi = "Imported successfully. Reloading page";
+									setTimeout(function(){document.location.reload();},1000);
+								}
+							}else{
+								this.s2_rrrrrrrrei = ( "Export Error: " + response.data['error'] );
+							}
+						}else{
+							this.s2_rrrrrrrrei = ("Incorrect response");
+						}
+					}else{
+						this.s2_rrrrrrrrei = ("Incorrect response Type");
+					}
+				}else{
+					this.s2_rrrrrrrrei = ("Response Error: " + response.status );
+				}
+			}).catch(error=>{
+				console.log( error );
+				this.s2_rrrrrrrrei = ( "Error Exporting" );
+			});
+		},
+		s2_snoisrev_wohs: function(){
+			this.s2_ladom_noisrev = new bootstrap.Modal(document.getElementById('s2_ladom_noisrev'));
+			this.s2_ladom_noisrev.show();
+		},
+		s2_enolc_noisrev: function(vid){
+			if( confirm("Are you sure?\nIt will create a new version") ){
+				this.s2_gggggggsmv = "Creating new version";
+				axios.post("?", {
+					"action": "app_"+this.property_type+"_clone", 
+					"from_version_id": vid
+				}).then(response=>{
+					this.s2_gggggggsmv = "";
+					if( response.status == 200 ){
+						if( typeof(response.data) == "object" ){
+							if( 'status' in response.data ){
+								if( response.data['status'] == "success" ){
+									this.s2_ofni_snoisrev_daol();
+								}else{
+									this.s2_rrrrrrrrev = ( "Error: " + response.data['error'] );
+								}
+							}else{
+								this.s2_rrrrrrrrev = ("Incorrect response");
+							}
+						}else{
+							this.s2_rrrrrrrrev = ("Incorrect response Type");
+						}
+					}else{
+						this.s2_rrrrrrrrev = ("Response Error: " + response.status );
+					}
+				}).catch(error=>{
+					console.log( error );
+					this.s2_rrrrrrrrev = ( "Error Exporting" );
+				});
+			}
+		},
+		s2_hctiws_noisrev: function(vi,vid){
+			if( confirm("Do you want to make Version: " + vi + " as active version" ) ){
+				this.s2_gggggggsmv = "Updating...";
+				axios.post("?", {
+					"action": "app_"+this.property_type+"_switch", 
+					"version_id": vid
+				}).then(response=>{
+					this.s2_gggggggsmv = "Successfully updated";
+					if( response.status == 200 ){
+						if( typeof(response.data) == "object" ){
+							if( 'status' in response.data ){
+								if( response.data['status'] == "success" ){
+									this.s2_ofni_snoisrev_daol();
+								}else{
+									this.s2_rrrrrrrrev = ( "Error: " + response.data['error'] );
+								}
+							}else{
+								this.s2_rrrrrrrrev = ("Incorrect response");
+							}
+						}else{
+							this.s2_rrrrrrrrev = ("Incorrect response Type");
+						}
+					}else{
+						this.s2_rrrrrrrrev = ("Response Error: " + response.status );
+					}
+				}).catch(error=>{
+					console.log( error );
+					this.s2_rrrrrrrrev = ( "Error Exporting" );
+				});
+			}
+		},
+		s2_ofni_snoisrev_daol: function(vid){
+				axios.post("?", {
+					"action": "app_"+this.property_type+"_load_versions_info", 
+				}).then(response=>{
+					this.s2_gggggggsmv = "";
+					if( response.status == 200 ){
+						if( typeof(response.data) == "object" ){
+							if( 'status' in response.data ){
+								if( response.data['status'] == "success" ){
+									this.s2_snoisrev_ipa = response.data['versions'];
+									this.s2_di_noisrev_tnerruc = response.data['current_version'];
+								}else{
+									this.s2_rrrrrrrrev = ( "Error: " + response.data['error'] );
+								}
+							}else{
+								this.s2_rrrrrrrrev = ("Incorrect response");
+							}
+						}else{
+							this.s2_rrrrrrrrev = ("Incorrect response Type");
+						}
+					}else{
+						this.s2_rrrrrrrrev = ("Response Error: " + response.status );
+					}
+				}).catch(error=>{
+					console.log( error );
+					this.s2_rrrrrrrrev = ( "Error Exporting" );
+				});
+		},
+		s2_stnemnorivne_tset_tes: function(){
+			var e = [];
+			for( var d in this.s2_pppppppppa['settings']['domains'] ){
+				e.push({
+					"t": "custom",
+					"u": this.s2_pppppppppa['settings']['domains'][ d ]['url'],
+					"d": this.s2_pppppppppa['settings']['domains'][ d ]['domain'],
+				});
+			}
+			if( 'cloud' in this.s2_pppppppppa['settings'] ){
+				if( this.s2_pppppppppa['settings']['cloud'] ){
+					var d = this.s2_pppppppppa['settings']['cloud-subdomain'] + "." + this.s2_pppppppppa['settings']['cloud-domain'];
+					e.push({
+						"t": "cloud",
+						"u": "https://" + d + "/",
+						"d": d,
+					});
+				}
+			}
+			if( 'alias' in this.s2_pppppppppa['settings'] ){
+				if( this.s2_pppppppppa['settings']['alias'] ){
+					var d = this.s2_pppppppppa['settings']['alias-domain'];
+					e.push({
+						"t": "cloud-alias",
+						"u": "https://" + d + "/",
+						"d": d,
+					});
+				}
+			}
+			this.s2_ssvne_tset = e;
+		},
 		s2_tnemnorivne_tset_tceles: function(){
 			setTimeout(this.s2_tnemnorivne_tset_tceles2,200);
 		},
 		s2_tnemnorivne_tset_tceles2: function(){
-			for( var d in this.s2_pppppppppa['settings']['domains'] ){
-				if( this.s2_pppppppppa['settings']['domains'][ d ]['domain'] == this.s2_tttttttset['domain'] ){
-					this.s2_tttttttset['path'] = this.s2_pppppppppa['settings']['domains'][ d ]['path'];
-					var tu = this.s2_pppppppppa['settings']['domains'][ d ]['url'] + "?version_id=<?=$config_param4 ?>&test_token=<?=md5($config_param4) ?>";
+			for( var i=0;i<this.s2_ssvne_tset.length;i++ ){
+				//in this.s2_pppppppppa['settings']['domains'] ){
+				if( this.s2_ssvne_tset[i]['d'] == this.s2_tttttttset['domain'] ){
+					//this.s2_tttttttset['path'] = this.s2_pppppppppa['settings']['domains'][ d ]['path'];
+					if( this.property_type == "api" ){
+						if( this.s2_di_noisrev_tnerruc == this.s2_di_noisrev ){
+							var tu = this.s2_ssvne_tset[i]['u'].substr(0,this.s2_ssvne_tset[i]['u'].length-1) + this.s2_iiiiiiiipa['path'] + this.s2_iiiiiiiipa['name']; 
+							//"?test_token=<?=md5($config_param4) ?>";
+						}else{
+							var tu = this.s2_ssvne_tset[i]['u'] + "?version_id=<?=$config_param4 ?>&test_token=<?=md5($config_param4) ?>";
+						}
+					}else if( this.property_type == "function" ){
+						var tu = this.s2_ssvne_tset[i]['u'] + "?function_version_id=<?=$config_param4 ?>&test_token=<?=md5($config_param4) ?>";
+					}else{
+						alert("Error");return false;
+					}
 					if( this.s2_gubed_tset ){
 						tu  = tu + "&debug=true";
 					}
-					if( this.s2_iiiiiiiipa['input-method'] == "GET" ){
-						tu = tu + "&" + this.s2_gnirts_yreuq_ekam( this.s2_tttttttset['factors']['v'] );
+					if( this.property_type=="api" ){
+						if( this.s2_iiiiiiiipa['input-method'] == "GET" ){
+							tu = tu + "&" + this.s2_gnirts_yreuq_ekam( this.s2_tttttttset['factors']['v'] );
+						}
 					}
 					this.s2_lllru_tset = tu;
 					break;
@@ -372,13 +642,14 @@ var app = s2_ssssssssss({
 			}
 		},
 		s2_llorcs_tneve: function(e){
-			if( e.target.className == "codeeditor_block_a" ){
-				if( this.s2_unem_txetnoc ){
-					this.s2_elyts_unem_txetnoc_tes();
-				}else if( this.s2_ladom_pupop_elpmis ){
-					this.s2_elyts_pupop_elpmis_tes();
-				}
+			if( this.s2_unem_txetnoc ){
+				this.s2_elyts_unem_txetnoc_tes();
+			}else if( this.s2_ladom_pupop_elpmis ){
+				this.s2_elyts_pupop_elpmis_tes();
 			}
+			// if( e.target.className == "codeeditor_block_a" ){
+			// }else if( e.target.className == "codeeditor_block_a" ){
+			// }
 		},
 		s2_puyek_tneve: function(e){
 			if( e.target.hasAttribute("data-type") ){
@@ -417,15 +688,11 @@ var app = s2_ssssssssss({
 			//setTimeout(this.s2_etsap_retfa,100,e.target);
 		},
 		s2_etsap_retfa: function(el){
-			console.log( el.innerText );
-			console.log( el.innerHTML );
 			if( el.innerText != el.innerHTML ){
 				el.innerText = el.innerText+'';
 			}
 		},
 		s2_rulb_tneve: function( e ){
-			// console.log( "blur event:" );
-			// console.log( e.target );
 			if( e.target.hasAttribute("data-type") ){
 				if( e.target.getAttribute("data-type") == "editable" ){
 					e.stopPropagation();
@@ -487,7 +754,7 @@ var app = s2_ssssssssss({
 			}
 			if( e.keyCode == 27 ){
 				if( this.s2_unem_txetnoc ){
-					this.s2_unem_txetnoc = false;
+					this.s2_unem_txetnoc_edih();
 				}
 				if( this.s2_ladom_pupop_elpmis ){
 					this.s2_ladom_pupop_elpmis = false;
@@ -565,6 +832,20 @@ var app = s2_ssssssssss({
 							this.s2_pupop_cod_wohs(doc);
 							return 0;
 						}
+						if( el.className == "help-div2" ){
+							doc = el.getAttribute("data-help");
+							this.s2_le_pupop_elpmis = el;
+							this.s2_di_egats_pupop_elpmis = -1;
+							this.s2_ravatad_pupop_elpmis = "d";
+							this.s2_rof_pupop_elpmis = "stages";
+							this.s2_atad_pupop_elpmis = doc;
+							this.s2_epyt_pupop_elpmis = "hh";
+							this.s2_ladom_pupop_elpmis = true;
+							//this.s2_unem_txetnoc_sucof_dna_wohs();
+							this.s2_elyts_pupop_elpmis_tes();
+
+							return 0;
+						}
 					}
 					el = el.parentNode;
 				}catch(e){
@@ -575,14 +856,12 @@ var app = s2_ssssssssss({
 			//console.log();
 			if( el_data_type ){
 				var t = el_data_type.getAttribute("data-type");
-				console.log( t );
 				if( t == "type_pop" ){
 
 				}else if( t == "objecteditable" ){
 					this.s2_di_egats_pupop = stage_id;
 					this.s2_ravatad_pupop = data_var;
 					this.s2_rrof_pupop = data_for;
-					console.log("objecteditable" + data_var);
 					var v = this.s2_eulav_elbatide_teg({'data_var':data_var,'data_for':data_for,'stage_id':stage_id});
 					if( v === false ){console.log("event_click: value false");return false;}
 					this.s2_atad_pupop = v;
@@ -601,10 +880,25 @@ var app = s2_ssssssssss({
 					}else if( this.s2_epyt_pupop == "HT" ){
 						this.s2_eltit_pupop = "HTML Editor";
 					}
-					if( this.s2_ladom_pupop == false ){
-						this.s2_ladom_pupop = new bootstrap.Modal( document.getElementById('s2_ladom_pupop') );
+					if( this.s2_epyt_pupop == "HT" ){
+						if( this.s2_ladom_lmth_pupop == false ){
+							this.s2_ladom_lmth_pupop = new bootstrap.Modal( document.getElementById('s2_ladom_lmth_pupop') );
+						}
+						this.s2_ladom_lmth_pupop.show();
+
+						this.ace_editor2 = ace.edit("popup_html_editor");
+						this.ace_editor2.session.setMode("ace/mode/html");
+						this.ace_editor2.setOptions({
+							enableAutoIndent: true, behavioursEnabled: true,
+							showPrintMargin: false, printMargin: false, 
+							showFoldWidgets: false, 
+						});
+						this.ace_editor2.setValue( html_beautify(this.s2_atad_pupop) );
+
+					}else{
+						this.s2_nepo_ladom_pupop();
 					}
-					this.s2_ladom_pupop.show();
+
 				}else if( t == "popupeditable" ){
 					this.s2_le_pupop_elpmis = el_data_type;
 					this.s2_di_egats_pupop_elpmis = stage_id;
@@ -618,20 +912,17 @@ var app = s2_ssssssssss({
 					this.s2_ladom_pupop_elpmis = true;
 					//this.s2_unem_txetnoc_sucof_dna_wohs();
 					this.s2_elyts_pupop_elpmis_tes();
+
 				}else if( t == "payloadeditable" ){
 					this.s2_di_egats_pupop = stage_id;
 					this.s2_ravatad_pupop = data_var;
 					this.s2_rrof_pupop = data_for;
-					console.log("payloadeditable" + data_var);
 					var v = this.s2_eulav_elbatide_teg({'data_var':data_var,'data_for':data_for,'stage_id':stage_id});
 					if( v === false ){console.log("event_click: value false");return false;}
 					this.s2_atad_pupop = v;
 					this.s2_epyt_pupop = 'PayLoad';
 					this.s2_eltit_pupop = "Request Payload Editor";
-					if( this.s2_ladom_pupop == false ){
-						this.s2_ladom_pupop = new bootstrap.Modal( document.getElementById('s2_ladom_pupop') );
-					}
-					this.s2_ladom_pupop.show();
+					this.s2_nepo_ladom_pupop();
 
 				}else if( t == "dropdown" || t == "dropdown2" || t == "dropdown3" || t == "dropdown4" ){
 					this.s2_le_txetnoc = el_data_type;
@@ -641,7 +932,7 @@ var app = s2_ssssssssss({
 					this.s2_ravatad_txetnoc = data_var;
 					var v = this.s2_eulav_elbatide_teg({'data_var':data_var,'data_for':data_for,'stage_id':stage_id});
 					if( v === false ){console.log("event_click: value false");return false;}
-					console.log("dropdown click: " + data_for + ": " + data_var );
+					//console.log("dropdown click: " + data_for + ": " + data_var );
 					this.s2_di_egats_txetnoc = stage_id;
 					this.s2_epyt_txetnoc = el_data_type.getAttribute("data-list");
 					if( this.s2_epyt_txetnoc == "varsub" || this.s2_epyt_txetnoc == "plgsub" ){
@@ -682,6 +973,8 @@ var app = s2_ssssssssss({
 							this.s2_tsil_txetnoc = ["application/x-www-form-urlencoded", "application/json", "application/xml"];
 						}else if( ld == 'get-input-type' ){
 							this.s2_tsil_txetnoc = ["query_string"];
+						}else if( ld == 'auth-type' ){
+							this.s2_tsil_txetnoc = ["None", "Access-Key", "Credentials", "Bearer"];
 						}else if( ld == 'output-type' ){
 							if( this.s2_iiiiiiiipa['input-method'] == "GET" ){
 								this.s2_tsil_txetnoc = ["application/json", "application/xml", "text/html", "text/plain"];
@@ -692,7 +985,6 @@ var app = s2_ssssssssss({
 							this.s2_tsil_txetnoc = ld.split(",");
 						}
 					}
-					console.log("ok");
 					this.s2_unem_txetnoc_sucof_dna_wohs();
 					this.s2_elyts_unem_txetnoc_tes();
 
@@ -705,18 +997,30 @@ var app = s2_ssssssssss({
 				console.log("Element Data-Context");
 			}else{
 				if( this.s2_unem_txetnoc ){
-					this.s2_unem_txetnoc = false;
+					this.s2_unem_txetnoc_edih();
 				}
 				if( this.s2_ladom_pupop_elpmis ){
 					this.s2_ladom_pupop_elpmis = false;
 				}
 			}
 		},
+		s2_nepo_ladom_pupop: function(){
+			if( this.s2_ladom_pupop == false ){
+				this.s2_ladom_pupop = new bootstrap.Modal(document.getElementById('s2_ladom_pupop'));
+					document.getElementById('s2_ladom_pupop').addEventListener('hide.bs.modal', event => {
+					console.log("Popup closed");
+					this.s2_deyalpsid_ladom_pupop = false;
+				});
+			}
+			this.s2_ladom_pupop.show();
+			this.s2_deyalpsid_ladom_pupop = true;
+		},
 		s2_kcehc_daol_tsil_gniht_txetnoc: function(){
 			if( this.s2_gniht_txetnoc in this.s2_tsil_gniht_txetnoc == false ){
 				this.s2_tsil_gniht_txetnoc[ this.s2_gniht_txetnoc ] = [];
 			}
-			if( this.s2_tsil_gniht_txetnoc[ this.s2_gniht_txetnoc ].length == 0 ){
+			//if( this.s2_tsil_gniht_txetnoc[ this.s2_gniht_txetnoc ].length == 0 )
+			{
 				this.s2_gsm_gniht_txetnoc = "Loading...";
 				this.s2_rre_gniht_txetnoc = "";
 				this.s2_tsil_gniht_txetnoc[ this.s2_gniht_txetnoc ] = [];
@@ -731,7 +1035,11 @@ var app = s2_ssssssssss({
 						if( typeof(response.data) == "object" ){
 							if( 'status' in response.data ){
 								if( response.data['status'] == "success" ){
-									this.s2_tsil_gniht_txetnoc[ this.s2_gniht_txetnoc ] = response.data['things'];
+									if( response.data['things'] == null ){
+										alert("Error context list");
+									}else if( typeof(response.data['things']) == "object" ){
+										this.s2_tsil_gniht_txetnoc[ this.s2_gniht_txetnoc ] = response.data['things'];
+									}
 								}else{
 									this.s2_rre_gniht_txetnoc = "Token Error: " + response.data['data'];
 								}
@@ -742,7 +1050,7 @@ var app = s2_ssssssssss({
 							this.s2_rre_gniht_txetnoc = "Incorrect response Type";
 						}
 					}else{
-						this.s2_rre_gniht_txetnoc = "Response Error: " . response.status;
+						this.s2_rre_gniht_txetnoc = "Response Error: " + response.status;
 					}
 				}).catch(error=>{
 					this.s2_rre_gniht_txetnoc = "Error Loading";
@@ -750,10 +1058,7 @@ var app = s2_ssssssssss({
 			}
 		},
 		s2_kcilc_ntbelbatide: function( el_data_type, data_var, data_for, stage_id, e ){
-			console.log( "editablebtn" );
-			console.log( el_data_type.previousSibling );
 			var v = el_data_type.previousSibling.innerText;
-			console.log( v );
 			v = v.replace(/[\u{0080}-\u{FFFF}]/gu, "");
 			// v = v.replace( /\&nbsp\;/g, " " );
 			// v = v.replace( /\&gt\;/g,  ">" );
@@ -781,8 +1086,6 @@ var app = s2_ssssssssss({
 			return v;
 		},
 		s2_eulav_elbatide_etadpu: function(s, v){
-			// this.s2_ooooooohce("s2_eulav_elbatide_etadpu: " );
-			// this.s2_ooooooohce(s);
 			if( s['data_for'] == 'stages' ){
 				var ov = this.s2_rav_bus_teg(this.s2_eeeeenigne['stages'][ s['stage_id'] ], s['data_var'], v);
 				if( ov != v ){
@@ -834,9 +1137,7 @@ var app = s2_ssssssssss({
 			var vkey = x.pop();
 			if( vkey == 'k' ){
 				var data_var = x.join(":");
-				//this.s2_ooooooohce( data_var );
 				var mdata = this.s2_rav_bus_teg( vv, data_var );
-				//this.s2_ooooooohce(mdata);
 				if( 'k' in mdata && 'v' in mdata && 't' in mdata ){
 					var vkey = x.pop();
 					if( vkey != v ){
@@ -849,6 +1150,12 @@ var app = s2_ssssssssss({
 					this.s2_ooooooohce("Not key object");
 				}
 			}else{this.s2_ooooooohce("k not found");}
+		},
+		s2_hsup_sravdnopser: function(v){
+			v.push({"t":"V", "v":{"v":"","t":"","vs":false} });
+		},
+		s2_led_sravdnopser: function(v,ri){
+			v.splice(ri,1);
 		},
 		s2_evas_atad_pupop: function(){
 			this.s2_ladom_pupop.hide();
@@ -891,19 +1198,38 @@ var app = s2_ssssssssss({
 			}
 			return v;
 		},
+		s2_unem_txetnoc_edih: function(){
+			this.s2_unem_txetnoc = false;
+			this.s2_elyts_txetnoc = "display:none;";
+			if( document.getElementById("s2_unem_txetnoc").parentNode.nodeName != "BODY" ){
+				console.log("moving context menu back to body ");
+				document.body.appendChild( document.getElementById("s2_unem_txetnoc") );
+			}
+		},
 		s2_unem_txetnoc_sucof_dna_wohs: function(){
 			setTimeout(function(){try{document.getElementById("contextmenu_key1").focus();}catch(e){}},300);
 			this.s2_unem_txetnoc = true;
+			if( this.s2_deyalpsid_ladom_pupop ){
+				document.getElementById("s2_ydob_ladom_pupop").appendChild( document.getElementById("s2_unem_txetnoc") );
+				//this.s2_elyts_unem_txetnoc_tes();
+			}
 			this.s2_yek_dnapxe_txetnoc = '';
 		},
 		s2_elyts_unem_txetnoc_tes: function(){
 			var s = this.s2_le_txetnoc.getBoundingClientRect();
 			//this.finx_zindex(this.s2_le_txetnoc);
-			this.s2_elyts_txetnoc = "top: "+s.top+"px;left: "+s.left+"px;";
+			var s5 = window.scrollY;
+			if( this.s2_deyalpsid_ladom_pupop ){
+				var s2 = document.getElementById("s2_ydob_ladom_pupop").getBoundingClientRect();
+				this.s2_elyts_txetnoc = "display:block;top: "+(Number(s.top)-Number(s2.top))+"px;left: "+(Number(s.left)-Number(s2.left))+"px;";
+			}else{
+				this.s2_elyts_txetnoc = "display:block;top: "+(s5+s.top)+"px;left: "+s.left+"px;";
+			}
 		},
 		s2_elyts_pupop_elpmis_tes: function(){
 			var s = this.s2_le_pupop_elpmis.getBoundingClientRect();
-			this.s2_elyts_pupop_elpmis = "top: "+s.top+"px;left: "+s.left+"px;";
+			var s5 = window.scrollY;
+			this.s2_elyts_pupop_elpmis = "top: "+(s5+s.top)+"px;left: "+s.left+"px;";
 		},
 		s2_xedniz_dnif: function(el){
 			for(var i=0;i<20;i++){
@@ -943,7 +1269,7 @@ var app = s2_ssssssssss({
 			}
 		},
 		s2_tceles_txetnoc: function(k, t){
-			console.log( "context select: "+ this.s2_rof_txetnoc  + ": " + this.s2_ravatad_txetnoc + ": " + k +  ": " + t );
+			//console.log( "context select: "+ this.s2_rof_txetnoc  + ": " + this.s2_ravatad_txetnoc + ": " + k +  ": " + t );
 			if( this.s2_rof_txetnoc == 'engine' ){
 				this.s2_rav_bus_tes( this.s2_eeeeenigne, this.s2_ravatad_txetnoc, k );
 				if( t == "inputtype" ){
@@ -985,160 +1311,152 @@ var app = s2_ssssssssss({
 						"vs": false,
 					};
 					this.s2_egats_egnahc_egats(this.s2_di_egats_txetnoc, k, t);
+					this.s2_unem_txetnoc_edih();
+					this.s2_noitpo_detadpu();return;
 
 				}else{
-					if( typeof(k) == "string" || typeof(k) == "number" ){
-						this.s2_rav_bus_egats_tes( this.s2_di_egats_txetnoc, this.s2_ravatad_txetnoc, k );
-					}
-					if( t == 'prop' ){
-						var vt = this.s2_rav_bus_egats_teg( this.s2_di_egats_txetnoc, this.s2_tnerap_ravatad_txetnoc+":t" );
-						if( vt in this.s2_seitreporp_tcejbo_gifnoc ){
-							if( k in this.s2_seitreporp_tcejbo_gifnoc[ vt ] ){
-								//this.s2_ooooooohce( this.s2_rav_bus_egats_teg( this.s2_di_egats_txetnoc, this.s2_tnerap_ravatad_txetnoc ) );
-								this.s2_rav_bus_egats_tes( this.s2_di_egats_txetnoc, this.s2_tnerap_ravatad_txetnoc+":vs:d", this.s2_nnnnnnnosj(this.s2_seitreporp_tcejbo_gifnoc[ vt ][k]) );
-							}
+					if( t == "datatype" && this.s2_ravatad_txetnoc == "d:rhs:t" && k == "s2_fffffffftc" ){
+						this.s2_noitcnuf_ot_egats_egnahc_egats( this.s2_di_egats_txetnoc );
+						this.s2_unem_txetnoc_edih();
+						return;
+					}else{
+						if( typeof(k) == "string" || typeof(k) == "number" ){
+							this.s2_rav_bus_egats_tes( this.s2_di_egats_txetnoc, this.s2_ravatad_txetnoc, k );
 						}
-					}
-					if( t == 'plgprop' ){
-						var vt = this.s2_rav_bus_egats_teg( this.s2_di_egats_txetnoc, this.s2_tnerap_ravatad_txetnoc+":t" );
-						//this.s2_ooooooohce( vt );
-						if( vt in this.s2_atad_nigulp ){
-							if( 'p' in this.s2_atad_nigulp[ vt ] ){
-								if( k in this.s2_atad_nigulp[ vt ]['p'] ){
-									var d = this.s2_nnnnnnnosj( this.s2_rav_bus_egats_teg( this.s2_di_egats_txetnoc, this.s2_tnerap_ravatad_txetnoc ) );
-									//d['vs'] = {"v":"", "t":"", "d":{}};
-									this.s2_rav_bus_egats_tes( this.s2_di_egats_txetnoc, this.s2_tnerap_ravatad_txetnoc+":vs:d", {} );
-									d['vs']['d'] = this.s2_nnnnnnnosj(this.s2_atad_nigulp[ vt ]['p'][k]);
-									setTimeout(this.s2_rav_bus_egats_tes,100,this.s2_di_egats_txetnoc, this.s2_tnerap_ravatad_txetnoc, d );
-									//this.nextTick();
-								}else{
-									this.s2_ooooooohce( k + " not found in plugin data " + vt );
+						if( t == 'prop' ){
+							var vt = this.s2_rav_bus_egats_teg( this.s2_di_egats_txetnoc, this.s2_tnerap_ravatad_txetnoc+":t" );
+							if( vt in this.s2_seitreporp_tcejbo_gifnoc ){
+								if( k in this.s2_seitreporp_tcejbo_gifnoc[ vt ] ){
+									this.s2_rav_bus_egats_tes( this.s2_di_egats_txetnoc, this.s2_tnerap_ravatad_txetnoc+":vs:d", this.s2_nnnnnnnosj(this.s2_seitreporp_tcejbo_gifnoc[ vt ][k]) );
 								}
-							}else{
-								this.s2_ooooooohce("plugging data sub p not found");
 							}
 						}
-					}
-					if( t == "plugin" ){
-						if( k in this.s2_atad_nigulp ){
-							var x = this.s2_ravatad_txetnoc.split(/\:/g);
-							x.pop(0);
-							var dvp = x.join(":");
-							this.s2_rav_bus_egats_tes( this.s2_di_egats_txetnoc, dvp+':vs', {"v": ".", "t": "n", "d": {}} );
-						}else{
-							console.error("selected plugin: " + k + " not found");
-							this.s2_rav_bus_egats_tes( this.s2_di_egats_txetnoc, this.context_datavar_, "" );
-						}
-					}
-					if( t == "thing" ){
-						//this.s2_ooooooohce( k );
-						//this.s2_ooooooohce( this.s2_rav_bus_egats_teg( this.s2_di_egats_txetnoc, this.s2_ravatad_txetnoc ) );
-						this.s2_rav_bus_egats_tes( this.s2_di_egats_txetnoc, this.s2_ravatad_txetnoc, k );
-					}
-					if( t == "datatype" ){
-						this.s2_epyt_elbairav_etadpu( this.s2_eeeeenigne['stages'][ this.s2_di_egats_txetnoc ], this.s2_ravatad_txetnoc, k );
-						if( this.s2_eeeeenigne['stages'][ this.s2_di_egats_txetnoc ]['k']['v'] == "Let" ){
-							var a = this.s2_eeeeenigne['stages'][ this.s2_di_egats_txetnoc ]['d']['lhs'];
-							var t = this.s2_eeeeenigne['stages'][ this.s2_di_egats_txetnoc ]['d']['rhs']['t'];
-							if( t == "TT" ){ t = "T"; }
-							setTimeout(this.s2_segats_bus_ni_egnahc_epyt_elbairav_etadpu, 100, this.s2_di_egats_txetnoc, a, t);
-						}
-					}
-					if( t == "function" ){
-						if( k != "" ){
-							if( k in this.s2_ssnoitcnuf ){
-								var vt = this.s2_tnerap_ravatad_txetnoc+":inputs";
-								this.s2_rav_bus_egats_tes( this.s2_di_egats_txetnoc, vt, {} );
-								var s2_pppppppppp = this.s2_nnnnnnnosj( this.s2_ssnoitcnuf[k]['inputs'] );
-								var s2_rrrrrrrrrr = this.s2_ssnoitcnuf[k]['return'];
-								var s2_ssssssssss = this.s2_ssnoitcnuf[k]['self'];
-								setTimeout(this.s2_stupni_noitcnuf_tes, 100, this.s2_tnerap_ravatad_txetnoc, s2_pppppppppp, s2_rrrrrrrrrr, s2_ssssssssss);
+						if( t == "plugin" ){
+							if( k in this.s2_atad_nigulp ){
+								var x = this.s2_ravatad_txetnoc.split(/\:/g);
+								x.pop(0);
+								var dvp = x.join(":");
+								this.s2_rav_bus_egats_tes( this.s2_di_egats_txetnoc, dvp+':vs', {"v": ".", "t": "n", "d": {}} );
 							}else{
-								console.log("function error: " + k + " not found!");
+								console.error("selected plugin: " + k + " not found");
+								this.s2_rav_bus_egats_tes( this.s2_di_egats_txetnoc, this.context_datavar_, "" );
 							}
 						}
-					}
-					if( t == "var" ){
-						var d = this.s2_rav_bus_o_teg( this.s2_esiw_egats_srotcaf_lla[ this.s2_di_egats_txetnoc ], k );
-						// this.s2_ooooooohce("var select");
-						// this.s2_ooooooohce( d );
-						// this.s2_ooooooohce( this.s2_ravatad_txetnoc );
-						if( d ){
-							var x = this.s2_ravatad_txetnoc.split(/\:/g);
+						if( t == "thing" ){
+							this.s2_rav_bus_egats_tes( this.s2_di_egats_txetnoc, this.s2_ravatad_txetnoc, k );
+						}
+						if( t == "datatype" ){
+							if( k == "s2_fffffffftc" ){
+								
+							}else{
+								this.s2_epyt_elbairav_etadpu( this.s2_eeeeenigne['stages'][ this.s2_di_egats_txetnoc ], this.s2_ravatad_txetnoc, k );
+								if( this.s2_eeeeenigne['stages'][ this.s2_di_egats_txetnoc ]['k']['v'] == "Let" ){
+									var a = this.s2_eeeeenigne['stages'][ this.s2_di_egats_txetnoc ]['d']['lhs'];
+									if( this.s2_eeeeenigne['stages'][ this.s2_di_egats_txetnoc ]['d']['rhs']['t'] == "Function" ){
+										var t = this.s2_eeeeenigne['stages'][ this.s2_di_egats_txetnoc ]['d']['rhs']['v']['return']+'';
+									}else{
+										var t = this.s2_eeeeenigne['stages'][ this.s2_di_egats_txetnoc ]['d']['rhs']['t'];
+									}
+									if( t == "TT" ){ t = "T"; }
+									if( t != "Function" ){
+										setTimeout(this.s2_segats_bus_ni_egnahc_epyt_elbairav_etadpu, 100, this.s2_di_egats_txetnoc, a, t);
+									}
+								}
+							}
+						}
+						if( t == "function" ){
+							if( k != "" ){
+								if( k in this.s2_ssnoitcnuf ){
+									var vt = this.s2_tnerap_ravatad_txetnoc+":inputs";
+									this.s2_rav_bus_egats_tes( this.s2_di_egats_txetnoc, vt, {} );
+									var s2_pppppppppp = this.s2_nnnnnnnosj( this.s2_ssnoitcnuf[k]['inputs'] );
+									var s2_rrrrrrrrrr = this.s2_ssnoitcnuf[k]['return'];
+									var s2_ssssssssss = this.s2_ssnoitcnuf[k]['self'];
+									setTimeout(this.s2_stupni_noitcnuf_tes, 100, this.s2_tnerap_ravatad_txetnoc, s2_pppppppppp, s2_rrrrrrrrrr, s2_ssssssssss);
+								}else{
+									console.log("function error: " + k + " not found!");
+								}
+							}
+						}
+						if( t == "var" ){
+							var d = this.s2_rav_bus_o_teg( this.s2_esiw_egats_srotcaf_lla[ this.s2_di_egats_txetnoc ], k );
+							if( d ){
+								var x = this.s2_ravatad_txetnoc.split(/\:/g);
+								x.pop();
+								var new_path = x.join(":");
+								var var_type = d['t'];
+								//console.log( var_type );
+								this.s2_rav_bus_egats_tes( this.s2_di_egats_txetnoc, new_path+':t', var_type );
+								this.s2_rav_bus_egats_tes( this.s2_di_egats_txetnoc, new_path+':vs', {"v": "","t": "","d": {} } );
+								if( var_type in this.s2_atad_nigulp ){
+									this.s2_rav_bus_egats_tes( this.s2_di_egats_txetnoc, new_path+':plg', var_type, true );
+								}else{
+									this.s2_rav_bus_egats_evomer( this.s2_di_egats_txetnoc, new_path+':plg' );
+								}
+								var s = this.s2_rav_bus_egats_teg( this.s2_di_egats_txetnoc, new_path );
+								this.s2_rav_bus_egats_tes( this.s2_di_egats_txetnoc, new_path, this.s2_nnnnnnnosj( s ) );
+							}
+						}
+						if( t == "operator" ){
+							var op = this.s2_rav_bus_egats_teg( this.s2_di_egats_txetnoc, this.s2_ravatad_txetnoc );
+							x = this.s2_ravatad_txetnoc.split(/\:/g);
 							x.pop();
-							var new_path = x.join(":");
-							var var_type = d['t'];
-							//console.log( var_type );
-							this.s2_rav_bus_egats_tes( this.s2_di_egats_txetnoc, new_path+':t', var_type );
-							this.s2_rav_bus_egats_tes( this.s2_di_egats_txetnoc, new_path+':vs', {"v": "","t": "","d": {} } );
-							if( var_type in this.s2_atad_nigulp ){
-								this.s2_rav_bus_egats_tes( this.s2_di_egats_txetnoc, new_path+':plg', var_type, true );
-							}else{
-								this.s2_rav_bus_egats_evomer( this.s2_di_egats_txetnoc, new_path+':plg' );
-							}
-							var s = this.s2_rav_bus_egats_teg( this.s2_di_egats_txetnoc, new_path );
-							this.s2_rav_bus_egats_tes( this.s2_di_egats_txetnoc, new_path, this.s2_nnnnnnnosj( s ) );
-						}
-					}
-					if( t == "operator" ){
-						var op = this.s2_rav_bus_egats_teg( this.s2_di_egats_txetnoc, this.s2_ravatad_txetnoc );
-						x = this.s2_ravatad_txetnoc.split(/\:/g);
-						x.pop();
-						var vn = Number(x.pop());
-						var mvar = x.join(":");
-						var mdata = this.s2_rav_bus_egats_teg( this.s2_di_egats_txetnoc, mvar );
-						if( mvar == "d:rhs" ){
-							if( op == "." ){
-								while( mdata.length-1 > vn ){
-									mdata.pop();
-								}
-								this.s2_rav_bus_egats_tes( this.s2_di_egats_txetnoc, mvar, mdata );
-							}else{
-								if( mdata.length-1 == vn ){
-									mdata.push({ "m": [ {"t":"N","v":"333", "OP":"."} ], "OP": "." });
+							var vn = Number(x.pop());
+							var mvar = x.join(":");
+							var mdata = this.s2_rav_bus_egats_teg( this.s2_di_egats_txetnoc, mvar );
+							if( mvar == "d:rhs" ){
+								if( op == "." ){
+									while( mdata.length-1 > vn ){
+										mdata.pop();
+									}
 									this.s2_rav_bus_egats_tes( this.s2_di_egats_txetnoc, mvar, mdata );
 								}else{
-									this.s2_ooooooohce("update existing operator");
+									if( mdata.length-1 == vn ){
+										mdata.push({ "m": [ {"t":"N","v":"333", "OP":"."} ], "OP": "." });
+										this.s2_rav_bus_egats_tes( this.s2_di_egats_txetnoc, mvar, mdata );
+									}else{
+										this.s2_ooooooohce("update existing operator");
+									}
 								}
-							}
-						}else{
-							if( op == "." ){
-								while( mdata.length-1 > vn ){
-									mdata.pop();
-								}
-								this.s2_rav_bus_egats_tes( this.s2_di_egats_txetnoc, mvar, mdata );
 							}else{
-								if( mdata.length-1 == vn ){
-									mdata.push({"t":"N","v":"333", "OP":"."});
+								if( op == "." ){
+									while( mdata.length-1 > vn ){
+										mdata.pop();
+									}
 									this.s2_rav_bus_egats_tes( this.s2_di_egats_txetnoc, mvar, mdata );
 								}else{
-									this.s2_ooooooohce("update existing operator");
+									if( mdata.length-1 == vn ){
+										mdata.push({"t":"N","v":"333", "OP":"."});
+										this.s2_rav_bus_egats_tes( this.s2_di_egats_txetnoc, mvar, mdata );
+									}else{
+										this.s2_ooooooohce("update existing operator");
+									}
 								}
 							}
 						}
-					}
-					if( this.s2_kcabllac_txetnoc ){
-						var x = this.s2_kcabllac_txetnoc.split(/\:/g);
-						var vref = x.splice(0,1);
-						if( vref in this.$refs ){
-							if( "length" in this.$refs[ vref ] ){
-								this.$refs[ vref ][0].s2_kkkcabllac(x.join(":"));
+						if( this.s2_kcabllac_txetnoc ){
+							var x = this.s2_kcabllac_txetnoc.split(/\:/g);
+							var vref = x.splice(0,1);
+							if( vref in this.$refs ){
+								if( "length" in this.$refs[ vref ] ){
+									this.$refs[ vref ][0].s2_kkkcabllac(x.join(":"));
+								}else{
+									this.$refs[ vref ].s2_kkkcabllac(x.join(":"));
+								}
 							}else{
-								this.$refs[ vref ].s2_kkkcabllac(x.join(":"));
+								console.error("Ref: " + vref + ": not found");
+								//this.$refs[ x[0] ][ x[1] ]();
 							}
-						}else{
-							console.error("Ref: " + vref + ": not found");
-							//this.$refs[ x[0] ][ x[1] ]();
 						}
 					}
 				}
 			}else{
 				console.error("context_select error: data_for unknown: "+ this.s2_rof_txetnoc );
 			}
+			this.s2_unem_txetnoc_edih();
 			setTimeout(this.s2_noitpo_detadpu,100);
-			this.s2_unem_txetnoc = false;
 		},
-		s2_stupni_noitcnuf_tes: function(v,p,r,s){
+		s2_stupni_noitcnuf_tes: function(v, p, r, s){
 			var vt = v+":inputs";
 			this.s2_rav_bus_egats_tes( this.s2_di_egats_txetnoc, vt, p );
 			var vt = v+":return";
@@ -1150,11 +1468,8 @@ var app = s2_ssssssssss({
 			this.s2_rav_bus_tes( this.s2_eeeeenigne['stages'][ vstagei ], datavar, d, create_sub_node );
 		},
 		s2_rav_bus_tes: function( vv, vpath, value, create_sub_node = false ){
-			// this.s2_ooooooohce("s2_rav_bus_tes: " + vpath + " - " + value + " : " + (create_sub_node?'create_sub_node':'')) ;
-			// this.s2_ooooooohce( vv );
 			try{
 				var x = vpath.split(":");
-				//this.s2_ooooooohce( x );
 				var k = x[0];
 				if( k.match(/^[0-9]+$/) ){
 					k = Number(k);
@@ -1273,59 +1588,6 @@ var app = s2_ssssssssss({
 		s2_tcejbo_ni_selbairav_ecalper: function( vd ){
 			return vd;
 		},
-		s2_ssipa_daol(){
-			this.s2_ggggggggsm = "Loading...";
-			this.s2_rrrrrrrrre = "";
-			axios.post("?", {"action":"get_token","event":"getapis","expire":2}).then(response=>{
-				this.s2_ggggggggsm = "";
-				if( response.status == 200 ){
-					if( typeof(response.data) == "object" ){
-						if( 'status' in response.data ){
-							if( response.data['status'] == "success" ){
-								this.s2_nnnnnnekot = response.data['token'];
-								if( this.s2_ko_nekot_si(this.s2_nnnnnnekot) ){
-									this.s2_ssipa_daol2();
-								}
-							}else{
-								alert("Token error: " + response.data['data']);
-								this.s2_rrrrrrrrre = "Token Error: " + response.data['data'];
-							}
-						}else{
-							this.s2_rrrrrrrrre = "Incorrect response";
-						}
-					}else{
-						this.s2_rrrrrrrrre = "Incorrect response Type";
-					}
-				}else{
-					this.s2_rrrrrrrrre = "Response Error: " . response.status;
-				}
-			});
-		},
-		s2_ssipa_daol2(){
-			this.s2_ggggggggsm = "Loading...";
-			this.s2_rrrrrrrrre = "";
-			axios.post("?",{"action":"get_apis","token":this.s2_nnnnnnekot}).then(response=>{
-				this.s2_ggggggggsm = "";
-				if( response.status == 200 ){
-					if( typeof(response.data) == "object" ){
-						if( 'status' in response.data ){
-							if( response.data['status'] == "success" ){
-								this.apis = response.data['data'];
-							}else{
-								alert("Token error: " + response.data['error']);
-								this.s2_rrrrrrrrre = "Token Error: " + response.data['error'];
-							}
-						}else{
-							this.s2_rrrrrrrrre = "Incorrect response";
-						}
-					}else{
-						this.s2_rrrrrrrrre = "Incorrect response Type";
-					}
-				}else{
-					this.s2_rrrrrrrrre = "Response Error: " . response.status;
-				}
-			});
-		},
 		s2_ttttinaelc( v ){
 			v = v.replace( /\-/g, "DASH" );
 			v = v.replace( /\_/g, "UDASH" );
@@ -1349,7 +1611,7 @@ var app = s2_ssssssssss({
 			this.s2_gggggggsmc = "Editing...";
 			axios.post("?", {
 				"action":"get_token",
-				"event":"edit_api"+this.s2_iiipa_tide['_id'],
+				"event":"edit_"+this.property_type+this.s2_iiipa_tide['_id'],
 				"expire":2
 			}).then(response=>{
 				this.s2_ggggggggsm = "";
@@ -1360,7 +1622,7 @@ var app = s2_ssssssssss({
 								this.s2_nnnnnnekot = response.data['token'];
 								if( this.s2_ko_nekot_si(this.s2_nnnnnnekot) ){
 									axios.post("?", {
-										"action": "edit_api", 
+										"action": "edit_"+this.property_type, 
 										"edit_api": this.s2_iiipa_tide,
 										"token": this.s2_nnnnnnekot
 									}).then(response=>{
@@ -1382,7 +1644,7 @@ var app = s2_ssssssssss({
 												this.s2_rrrrrrrrec = "Incorrect response Type";
 											}
 										}else{
-											this.s2_rrrrrrrrec = "Response Error: " . response.status;
+											this.s2_rrrrrrrrec = "Response Error: " + response.status;
 										}
 									});
 								}
@@ -1397,7 +1659,7 @@ var app = s2_ssssssssss({
 						this.s2_rrrrrrrrre = "Incorrect response Type";
 					}
 				}else{
-					this.s2_rrrrrrrrre = "Response Error: " . response.status;
+					this.s2_rrrrrrrrre = "Response Error: " + response.status;
 				}
 			});
 		},
@@ -1412,6 +1674,9 @@ var app = s2_ssssssssss({
 					}
 					if( typeof( response.data["test"] ) == "object" && 'length' in response.data["test"] == false ){
 						this.s2_tttttttset 		= response.data["test"];
+						// if( 'headers' in this.s2_tttttttset ){
+
+						// }
 					}
 					this.s2_2atad_laitini_daol();
 				}else{
@@ -1420,7 +1685,6 @@ var app = s2_ssssssssss({
 			});
 		},
 		s2_2atad_laitini_daol: function(){
-			///console.log("load initial data2 ");
 			if( "input_factors" in this.s2_eeeeenigne == false ){
 				this.s2_eeeeenigne['input_factors'] ={};
 				this.s2_ddeen_evas=true;
@@ -1428,54 +1692,77 @@ var app = s2_ssssssssss({
 				this.s2_eeeeenigne['input_factors'] = {};
 				this.s2_ddeen_evas=true;
 			}
-			// if( 'output-template' in this.s2_eeeeenigne ){
-			// 	this.s2_eeeeenigne['ouptut-template'] = {"status": {"t":"T"}};
-			// 	this.s2_ddeen_evas=true;
-			// }
-			//console.log( this.s2_eeeeenigne );
 			if( 'stages' in this.s2_eeeeenigne == false ){
-				this.s2_eeeeenigne['stages'] = [
-					    {
-					      "k": {"v": "Let", "t": "c", "vs": false}, "pk": "Let",
-					      "t": "c",
-					      "d": {"lhs": "a","rhs": {"t": "N","v": 10}},
-					      "l": 1,"e": false,"ee": true,"er": "","wr": ""
-					    },
-					    {
-					      "k": {"v": "Let", "t": "c", "vs": false}, "pk": "Let",
-					      "t": "c",
-					      "d": {"lhs": "b","rhs": {"t": "N","v": 10}},
-					      "l": 1,"e": false,"ee": true,"er": "","wr": ""
-					    },
-					    {
-					      "k": {"v": "Let", "t": "c", "vs": false}, "pk": "Let",
-					      "t": "c",
-					      "d": {"lhs": "c","rhs": {"t": "N","v": 0}},
-					      "l": 1,"e": false,"ee": true,"er": "","wr": ""
-					    },
-					    {
-					      "k": {"v": "Math","t": "c","vs": false},"pk": "Math",
-					      "t": "c",
-					      "d": {
-					        "lhs": {"t": "V","v": {"v": "c","t": "N","vs": false}},
-					        "rhs": [
-					            {"m": [
-					              {"t": "V","v": {"v": "a","t": "N","vs": false},"OP": "+"},
-					              {"t": "V","v": {"v": "b","t": "N","vs": false},"OP": "+"},
-					              {"t": "N","v": "10","OP": "."}
-					            ],"OP": "."}
-					        ]
-					      },
-					      "l": 1,"e": false,"ee": true,"er": "","wr": ""
-					    },
-					    {
-					      "k": {"v": "Respond","t": "c","vs": false},"pk": "Respond",
-					      "t": "c",
-					      "d": {"t": "O","v": {"status": {"t": "T","v": "success","k":"status"},"data": {"t": "V","v": {"v": "c","t": "N","vs": {"v": "","t": "","d": []}},"k":"data"}}},
-					      "l": 1,"e": false,"ee": true,"er": "","wr": ""
-					    }
-				];
+				if( this.page_type =='codeeditor' ){
+					this.s2_eeeeenigne['stages'] = [
+						{
+							"k": {"v": "Let", "t": "c", "vs": false}, "pk": "Let",
+							"t": "c",
+							"d": {"lhs": "a","rhs": {"t": "N","v": 10}},
+							"l": 1,"e": false,"ee": true,"er": "","wr": "", "a": false,
+						}
+					];
+				}else{
+					this.s2_eeeeenigne['stages'] = [
+						    {
+						      "k": {"v": "Let", "t": "c", "vs": false}, "pk": "Let",
+						      "t": "c",
+						      "d": {"lhs": "a","rhs": {"t": "N","v": 10}},
+						      "l": 1,"e": false,"ee": true,"er": "","wr": "", "a": false,
+						    },
+						    {
+						      "k": {"v": "Let", "t": "c", "vs": false}, "pk": "Let",
+						      "t": "c",
+						      "d": {"lhs": "b","rhs": {"t": "N","v": 10}},
+						      "l": 1,"e": false,"ee": true,"er": "","wr": "", "a": false,
+						    },
+						    {
+						      "k": {"v": "Let", "t": "c", "vs": false}, "pk": "Let",
+						      "t": "c",
+						      "d": {"lhs": "c","rhs": {"t": "N","v": 0}},
+						      "l": 1,"e": false,"ee": true,"er": "","wr": "", "a": false,
+						    },
+						    {
+						      "k": {"v": "Math","t": "c","vs": false},"pk": "Math",
+						      "t": "c",
+						      "d": {
+						        "lhs": {"t": "V","v": {"v": "c","t": "N","vs": false}},
+						        "rhs": [
+						            {"m": [
+						              {"t": "V","v": {"v": "a","t": "N","vs": false},"OP": "+"},
+						              {"t": "V","v": {"v": "b","t": "N","vs": false},"OP": "+"},
+						              {"t": "N","v": "10","OP": "."}
+						            ],"OP": "."}
+						        ]
+						      },
+						      "l": 1,"e": false,"ee": true,"er": "","wr": "", "a": false,
+						    },
+						    {
+								"k": {"v": "RespondJSON", "t": "c", "vs": false}, "pk": "RespondJSON",
+								"t": "c",
+								"d": {
+									"output": {
+									  "t": "O",
+									  "v": {
+										"status": {"t": "T","v": "success","k": "status"},
+										"data": {"t": "V","v": {"v": "c","t": "N","vs": {"v": "","t": "","d": []}},"k": "data"}
+									  }
+									},
+									"pretty": {"t": "B","v": "false"}
+								},
+								"l": 1,"e": false,"ee": true,"er": "","wr": "", "a": false,
+							}
+					];
+				}
 				this.s2_ddeen_evas=true;
+			}else{
+				this.s2_evas_tsrif = true;
+				for(var i=0;i<this.s2_eeeeenigne['stages'].length;i++){
+					if( 'a' in this.s2_eeeeenigne['stages'][i] == false ){
+						this.s2_eeeeenigne['stages'][i]['a'] = false;
+						this.s2_ddeen_evas=true;
+					}
+				}
 			}
 			var dt = new Date();
 			this.s2_raey_tnerruc = dt.getFullYear();
@@ -1487,26 +1774,30 @@ var app = s2_ssssssssss({
 			this.s2_tnemnorivne_tset_tceles();
 		},
 		s2_egnahc_epyt_tupni: function(){
-			if( this.s2_iiiiiiiipa['input-type'] == "application/x-www-form-urlencoded" ){
-				for(var i in this.s2_eeeeenigne['input_factors'] ){
-					if( this.s2_eeeeenigne['input_factors'][i]['t'] != "T" && this.s2_eeeeenigne['input_factors'][i]['t'] != "N" ){
-						this.s2_eeeeenigne['input_factors'][i]['t'] =  "T";
-						this.s2_eeeeenigne['input_factors'][i]['v'] = "";
+			if( this.property_type == "api" ){
+				if( this.s2_iiiiiiiipa['input-type'] == "application/x-www-form-urlencoded" ){
+					for(var i in this.s2_eeeeenigne['input_factors'] ){
+						if( this.s2_eeeeenigne['input_factors'][i]['t'] != "T" && this.s2_eeeeenigne['input_factors'][i]['t'] != "N" ){
+							this.s2_eeeeenigne['input_factors'][i]['t'] =  "T";
+							this.s2_eeeeenigne['input_factors'][i]['v'] = "";
+						}
 					}
 				}
+				this.s2_ddeen_evas = true;
 			}
-			this.s2_ddeen_evas = true;
 		},
 		s2_egnahc_dohtem_egap: function(){
-			if( this.s2_iiiiiiiipa[ 'input-method' ] == "GET" ){
-				this.s2_iiiiiiiipa[ 'input-type'   ] =  "application/json";
-				this.s2_iiiiiiiipa[ 'output-type'  ] =  "application/json" ;
+			if( this.property_type == "api" ){
+				if( this.s2_iiiiiiiipa[ 'input-method' ] == "GET" ){
+					this.s2_iiiiiiiipa[ 'input-type'   ] =  "application/json";
+					this.s2_iiiiiiiipa[ 'output-type'  ] =  "application/json" ;
+				}
+				if( this.s2_iiiiiiiipa[ 'input-method' ] == "POST" ){
+					this.s2_iiiiiiiipa[ 'input-type'   ] =  "application/json";
+					this.s2_iiiiiiiipa[ 'output-type'  ] =  "application/json";
+				}
+				this.s2_ddeen_evas = true;
 			}
-			if( this.s2_iiiiiiiipa[ 'input-method' ] == "POST" ){
-				this.s2_iiiiiiiipa[ 'input-type'   ] =  "application/json";
-				this.s2_iiiiiiiipa[ 'output-type'  ] =  "application/json";
-			}
-			this.s2_ddeen_evas = true;
 		},
 		s2_detide_srotcaf_tupni: function( vdata ){
 			this.s2_eeeeenigne[  'input_factors' ] =  vdata ;
@@ -1574,12 +1865,6 @@ var app = s2_ssssssssss({
 				}
 			return v;
 		},
-		s2_selbairav_egrem: function( vo, vd ){
-			for( var key in vd ){
-				vo[ key+'' ] = this.s2_nnnnnnnosj(vd[key]);
-			}
-			//return vo;
-		},
 		s2_ttttttrosk: function( vd ){
 			var oo = {};
 			var _o = Object.keys(vd).sort();
@@ -1613,8 +1898,6 @@ var app = s2_ssssssssss({
 			return Object.fromEntries(Object.entries(vv).sort());
 		},
 		s2_noitaton_tsil_teg( v ){
-			//this.s2_ooooooohce( "get object notation" );
-			//this.s2_ooooooohce( v );
 			var vv = [];
 			if( typeof(v)=="object" ){
 				if( "length" in v ){
@@ -1687,19 +1970,22 @@ var app = s2_ssssssssss({
 			}catch(e){console.error(e);console.log("s2_rav_bus_tes error: " + vpath );return false;}
 		},
 		s2_segats_bus_ni_egnahc_epyt_elbairav_etadpu: function( sid, a, t ){
-			for(var s2_iiiiiegats=sid;s2_iiiiiegats<this.s2_eeeeenigne['stages'].length;s2_iiiiiegats++ ){
-				var s2_dddddegats = this.s2_eeeeenigne['stages'][s2_iiiiiegats];
-				this.s2_smarap_egats_bus_ni_egnahc_epyt_elbairav_etadpu( s2_dddddegats, a, t );
+			console.log( "s2_segats_bus_ni_egnahc_epyt_elbairav_etadpu: " + sid + ": " + a + ": " + t );
+			for(var s2_iiiiiegats=sid+1;s2_iiiiiegats<this.s2_eeeeenigne['stages'].length;s2_iiiiiegats++ ){
+				this.s2_smarap_egats_bus_ni_egnahc_epyt_elbairav_etadpu( this.s2_eeeeenigne['stages'][s2_iiiiiegats], a, t );
 			}
 		},
 		s2_smarap_egats_bus_ni_egnahc_epyt_elbairav_etadpu: function( vv, a, t ){
 			try{
 				if( "t" in vv && "v" in vv ){
-					if( vv['t'] == "V" || vv['t'] == "PLG" ){
+					if( vv['t'] == "V" ){
+						// this.s2_ooooooohce("s2_smarap_egats_bus_ni_egnahc_epyt_elbairav_etadpu");
+						// this.s2_ooooooohce( vv );
 						if( typeof( vv['v'] ) == "object" && vv['v'] != null ){
-							if( vv['v']['a'] == a ){
+							if( vv['v']['v'] == a ){
 								if( vv['v']['t'] != t ){
 									vv['v']['t'] = t+'';
+									//this.s2_ooooooohce( "updated" );
 								}
 							}
 						}
@@ -1714,9 +2000,18 @@ var app = s2_ssssssssss({
 		},
 		s2_selbairav_llif: function(){
 			var used_outputs = {};
-			var o = {};
+			var o = {
+				"server_": {
+					"t": "O",
+					"_": {
+						"ip": {"t": "T"},"user-agent": {"t": "T"}
+					}
+				}
+			};
 			vin = this.s2_srav_egats_ot_erutcurts_yarra_trevnoc( this.s2_eeeeenigne['input_factors'] );
-			this.s2_selbairav_egrem( o, vin );
+			for( var key in vin ){
+				o[ key+'' ] = this.s2_nnnnnnnosj(vin[key]);
+			}
 
 			for(var s2_iiiiiegats=0;s2_iiiiiegats<this.s2_eeeeenigne['stages'].length;s2_iiiiiegats++ ){
 				var s2_dddddegats = this.s2_eeeeenigne['stages'][s2_iiiiiegats];
@@ -1741,43 +2036,44 @@ var app = s2_ssssssssss({
 					}}}
 					er = er + this.s2_egasu_elbairav_dnif( o, s2_dddddegats['k']['vs'] );
 					wr = wr + this.s2_ytpme_elbairav_dnif( s2_dddddegats['k']['vs'] );
-				}else{
+					if( s2_dddddegats['t'] == "L" && s2_dddddegats['k']['t'] == "L" ){
+						if( s2_dddddegats['k']['vs']['v'] == "setTemplate" ){
+							var s = s2_dddddegats['k']['vs']['d']['inputs']['p2']['v'];
+							var s = this.s2_tupni_sa_mrof_lanif_elbairav_teg(s);
+							o[ s2_dddddegats['k']['v']+'' ] = s;
+						}
+					}
+					if( s2_dddddegats['t'] == "O" && s2_dddddegats['k']['t'] == "O" ){
+						if( s2_dddddegats['k']['vs']['v'] == "setTemplate" ){
+							var s = s2_dddddegats['k']['vs']['d']['inputs']['p2']['v'];
+							var s = this.s2_tupni_sa_mrof_lanif_elbairav_teg(s);
+							o[ s2_dddddegats['k']['v']+'' ] = s;
+						}
+					}
+				}else if(  s2_dddddegats['t'] != 'n' ){
 					er = er + this.s2_egasu_elbairav_dnif( o, s2_dddddegats['d'] );
-					wr = wr + this.s2_ytpme_elbairav_dnif( s2_dddddegats['d'] );
+					if( s2_dddddegats['t'] == "c" && s2_dddddegats['k']['v'] == "Function" ){
+						if( s2_dddddegats['d']['return'] ){
+							wr = wr + this.s2_ytpme_elbairav_dnif( s2_dddddegats['d']['lhs'] );
+						}
+						if( wr.trim() == "" ){
+							wr = wr + this.s2_ytpme_elbairav_dnif( s2_dddddegats['d']['inputs'] );
+						}
+					}else{
+						wr = wr + this.s2_ytpme_elbairav_dnif( s2_dddddegats['d'] );
+					}
 				}
-
-				if( s2_dddddegats['k']['v'] == "LetComponent" ){
-					//o[ s2_dddddegats['d']['lhs']+'' ] = this.s2_tupni_sa_mrof_lanif_elbairav_teg( this.s2_nnnnnnnosj( d ) );
-					//o[ s2_dddddegats['d']['lhs']+'' ] = this.s2_tupni_sa_mrof_lanif_elbairav_teg( this.s2_nnnnnnnosj( s2_dddddegats['d']['rhs'] ) );
+				if( s2_dddddegats['k']['v'] == "Let" ){
 					if( s2_dddddegats['d']['lhs'] == "" ){
 						er = er + " lhs variable empty";
 					}else if( s2_dddddegats['d']['lhs'] in o ){
 						wr = wr + " Warning variable `" + s2_dddddegats['d']['lhs'] + "` override;";
 					}
-					var comp = s2_dddddegats['d']['rhs']['v']['i']['v']+'';
-					// this.s2_ooooooohce("LetComponent: " );
-					// this.s2_ooooooohce( this.s2_nnnnnnnosj( this.s2_atad_nigulp[ comp ]['data'] ) );
-					if( comp in this.s2_atad_nigulp ){
-						o[ s2_dddddegats['d']['lhs']+'' ] = {
-							"t": comp, 
-							"_": {}
-						};
-						//this.s2_srav_egats_ot_erutcurts_yarra_trevnoc( this.s2_nnnnnnnosj( this.s2_atad_nigulp[ comp ]['data'] ) )
-						// this.s2_ooooooohce("LetComponent: " );
-						// this.s2_ooooooohce( o[ s2_dddddegats['d']['lhs']+'' ] );
-					}
-					//o[ s2_dddddegats['d']['lhs']+'' ]["PLG"] = 
-				}else if( s2_dddddegats['k']['v'] == "Let" ){
-					if( s2_dddddegats['d']['lhs'] == "" ){
-						er = er + " lhs variable empty";
-					}else if( s2_dddddegats['d']['lhs'] in o ){
-						wr = wr + " Warning variable `" + s2_dddddegats['d']['lhs'] + "` override;";
-					}
-					if( s2_dddddegats['d']['rhs']['t'] == "V" ){
+					if( s2_dddddegats['d']['rhs']['t'] == "Function" ){
+						o[ s2_dddddegats['d']['lhs']+'' ] = {"t": s2_dddddegats['d']['rhs']['v']['return']+'', "_":{}};
+					}else if( s2_dddddegats['d']['rhs']['t'] == "V" ){
 						if( s2_dddddegats['d']['rhs']['v']['v'] != "" ){
 							var d = this.s2_rav_bus_o_teg( o, s2_dddddegats['d']['rhs']['v']['v'] );
-							//this.s2_ooooooohce( d );
-							//this.s2_ooooooohce( s2_dddddegats['d']['rhs'] );
 							if( d ){
 								if( 'vs' in s2_dddddegats['d']['rhs']['v'] ){
 									if( s2_dddddegats['d']['rhs']['v']['vs'] != false ){
@@ -1852,6 +2148,12 @@ var app = s2_ssssssssss({
 						//this.s2_ooooooohce("Assign Object" );
 						this.s2_rav_bus_o_tes(o, s2_dddddegats['d']['lhs']['v']['v'], this.s2_tupni_sa_mrof_lanif_elbairav_teg( this.s2_nnnnnnnosj( s2_dddddegats['d']['rhs'] ) ) );
 					}
+					if( t2 == "Function" ){
+						t2 = s2_dddddegats['d']['rhs']['v']['return']+'';
+						if( t1 != t2 ){
+							wr = wr + " Warning: data type mismatch: " + t1 + " = " + t2;
+						}
+					}
 					if( t2 == "V" ){
 						var t2 = s2_dddddegats['d']['rhs']['v']['t'];
 						if( t2 in this.s2_seitreporp_tcejbo_gifnoc ){
@@ -1892,6 +2194,10 @@ var app = s2_ssssssssss({
 						}else{
 							console.log( t2 + ": not found in object props" );
 						}
+					}else{
+						if( t1 != t2 && t1 != "" && t2 != "" ){
+							wr = wr + " Warning: data type mismatch: " + t1 + " = " + t2;
+						}
 					}
 				}
 				if( s2_dddddegats['k']['v'] == "FunctionCall" ){
@@ -1927,15 +2233,18 @@ var app = s2_ssssssssss({
 					var arr = s2_dddddegats['d']['var']['v']['v'];
 					var d = this.s2_rav_bus_o_teg(o, s2_dddddegats['d']['var']['v']['v']);
 					// this.s2_ooooooohce( "value" );
-					this.s2_ooooooohce( d );
-					this.s2_ooooooohce( "value2" );
+
 					if( d ){
 						var t = d['t'];
 						if( t == "O" ){
 							if( '_' in d ){
 								key = {"t":"T"};
-								//this.s2_ooooooohce( Object.keys(d['_']) );	
-								val = d['_'][ Object.keys(d['_'])[0] ];
+								//this.s2_ooooooohce( Object.keys(d['_']) );
+								if( typeof( d['_'] )=="object" ){
+									if( Object.keys(d['_']).length ){
+										val = d['_'][ Object.keys(d['_'])[0] ];
+									}
+								}
 							}else{
 								er = er + " incorrect source var `"+s2_dddddegats['d']['var']['v']['v']+"` structure";
 							}
@@ -1954,9 +2263,6 @@ var app = s2_ssssssssss({
 							er = er + " incorrect source var `"+s2_dddddegats['d']['var']['v']['v']+"` structure";
 						}
 					}
-
-					this.s2_ooooooohce( "-----" );
-					this.s2_ooooooohce( val );
 
 					o[ s2_dddddegats['d']['key']+'' ] = key;
 					o[ s2_dddddegats['d']['value']+'' ] = {'t':'O', '_':val};
@@ -2035,9 +2341,6 @@ var app = s2_ssssssssss({
 						if( 'output' in s2_dddddegats['d']['data'] ){
 							var oo = s2_dddddegats['d']['data']['output']['v']+'';
 							var act = s2_dddddegats['d']['data']['query']['v']+'';
-							console.log( "mysql" );
-							console.log( oo );
-							console.log( act );
 							if( act == "Select" ){
 								o[ oo ] = {"t": "O", "_":{
 									"status": {"t":"T"},
@@ -2153,13 +2456,19 @@ var app = s2_ssssssssss({
 					var oo = s2_dddddegats['d']['data']['output']['v']+'';
 					o[ oo ] = {"t": "O", "_":s2_dddddegats['d']['data']['struct']};
 				}
+				if( s2_dddddegats['k']['v'] == "Create-Access-Key" || s2_dddddegats['k']['v'] == "Generate-Session-Key" || s2_dddddegats['k']['v'] == "Assume-Session-Key" ){
+					if( 'output' in s2_dddddegats['d']['data'] ){
+						var oo = s2_dddddegats['d']['data']['output']['v']+'';
+						o[ oo ] = {"t": "O", "_":s2_dddddegats['d']['data']['struct']};
+					}
+				}
 				if( s2_dddddegats['k']['v'] == "RespondHTML" ){
-					if( this.s2_iiiiiiiipa['output-type'] != "text/html" ){
+					if( this.s2_iiiiiiiipa['output-type'] != "text/html" && this.property_type == "api" ){
 						er = er + " incorrect page type and response format combination "+this.s2_iiiiiiiipa['output-type'];
 					}
 				}
 				if( s2_dddddegats['k']['v'] == "RespondJSON" ){
-					if( this.s2_iiiiiiiipa['output-type'] != "application/json" ){
+					if( this.s2_iiiiiiiipa['output-type'] != "application/json"  && this.property_type == "api" ){
 						er = er + " incorrect page type and response format combination";
 					}
 				}
@@ -2195,7 +2504,6 @@ var app = s2_ssssssssss({
 				if( 't' in vd && 'v' in vd ){
 					if( vd['t'] == "V" ){
 						if( vd['v']['v'] == "" ){
-							//er = er + " Variable selection missing;";
 						}else if( this.s2_rav_bus_o_dnif(vars, vd['v']['v']) == false ){
 							er = er + " Variable `" + vd['v']['v'] + "` is not available;";
 						}
@@ -2218,7 +2526,6 @@ var app = s2_ssssssssss({
 						if( 't' in vd[i] && 'v' in vd[i] ){
 							if( vd[i]['t'] == "V" ){
 								if( vd[i]['v']['v'] == "" ){
-									//er = er + " Variable selection missing;";
 								}else if( this.s2_rav_bus_o_dnif(vars, vd[i]['v']['v']) == false ){
 									er = er + " Variable `" + vd[i]['v']['v'] + "` is not available;";
 								}
@@ -2251,10 +2558,11 @@ var app = s2_ssssssssss({
 			var wr = "";
 			try{
 			if( typeof(vd) == "object" && "length" in vd == false ){
+				//this.s2_ooooooohce( vd );
 				if( 't' in vd && 'v' in vd ){
 					if( vd['t'] == "V" ){
 						if( vd['v']['v'] == "" ){
-							wr = wr + " Variable selection missing;";
+							wr = wr + " Variable selection missing;;";
 						}
 					}else{
 						if( vd['v'] == null ){}else
@@ -2399,7 +2707,7 @@ var app = s2_ssssssssss({
 			}
 		},
 		s2_rav_bus_o_tes: function( vv, vpath, value ){
-			this.s2_ooooooohce("s2_rav_bus_o_tes: " );this.s2_ooooooohce( vv ); this.s2_ooooooohce( vpath );
+			//this.s2_ooooooohce("s2_rav_bus_o_tes: " );this.s2_ooooooohce( vv ); this.s2_ooooooohce( vpath );
 			try{
 				var x = vpath.split("->");
 				var k = x[0];
@@ -2425,12 +2733,12 @@ var app = s2_ssssssssss({
 				}
 			}catch(e){
 				//console.log("s2_rav_bus_o_teg error");
-				this.s2_ooooooohce("s2_rav_bus_o_teg:" + vpath);this.s2_ooooooohce(vv);
+				//this.s2_ooooooohce("s2_rav_bus_o_teg:" + vpath);this.s2_ooooooohce(vv);
 				return false;
 			}
 		},
 		s2_trela_egats_wohs(i){
-			alert(this.s2_eeeeenigne['stages'][ i ]['er'] );
+			alert( this.s2_eeeeenigne['stages'][ i ]['er'] + "\n" + this.s2_eeeeenigne['stages'][ i ]['wr'] );
 		},
 		s2_tupni_sa_mrof_lanif_elbairav_teg: function( v ){
 			//console.log("Get variable finaal form:" );this.s2_ooooooohce( v );
@@ -2480,10 +2788,10 @@ var app = s2_ssssssssss({
 				}else{
 					this.s2_ooooooohce("variable type "+v['t'] + " missing sub structure");
 				}
-			}else{
+			}else if( v['t'] == "O" ){
 				if( '_' in v ){
 					vv['_'] = this.s2_nnnnnnnosj(v['_']);
-				}else if( typeof(v['v'])=="object" && v['v'] != null ){
+				}else if( typeof(v['v'])=="object" && v['v'] != null && "length" in v['v'] == false ){
 					if( Object.keys(v['v']).length > 0 ){
 						vv['_'] = this.s2_srav_egats_ot_erutcurts_yarra_trevnoc( this.s2_nnnnnnnosj(v['v']) );
 					}else{
@@ -2492,6 +2800,7 @@ var app = s2_ssssssssss({
 				}else{
 					this.s2_ooooooohce("variable type "+v['t'] + " missing sub structure");
 				}
+			}else{
 			}
 			//this.s2_ooooooohce( vv );
 			return vv;
@@ -2597,18 +2906,41 @@ var app = s2_ssssssssss({
 		s2_aatad_evas: function(){
 			this.s2_ddeen_evas = false;
 			this.s2_gnivas_wohs = true;
-			var s2_dddddddddv = {
-				"action"		: "save_engine_data",
-				"data"			: this.s2_eeeeenigne,
-				"type"			: this.s2_iiiiiiiipa['type'],
-				"input-method"		: this.s2_iiiiiiiipa['input-method'],
-				"input-type"		: this.s2_iiiiiiiipa['input-type'],
-				"output-type"		: this.s2_iiiiiiiipa['output-type'],
-				"version_id"		: "<?=$config_param4 ?>",
-				"api_id"		: "<?=$config_param3 ?>",
-			};
+			if( this.page_type == "codeeditor" ){
+				var s2_dddddddddv = {
+					"action"		: "save_engine_data",
+					"data"			: this.s2_eeeeenigne,
+					"input-method"		: this.s2_iiiiiiiipa['input-method'],
+					"input-type"		: this.s2_iiiiiiiipa['input-type'],
+					"output-type"		: this.s2_iiiiiiiipa['output-type'],
+					"auth-type"		: this.s2_iiiiiiiipa['auth-type'],
+				};
+			}else if( this.property_type == "api" ){
+				var s2_dddddddddv = {
+					"action"		: "save_engine_data",
+					"data"			: this.s2_eeeeenigne,
+					"input-method"		: this.s2_iiiiiiiipa['input-method'],
+					"input-type"		: this.s2_iiiiiiiipa['input-type'],
+					"output-type"		: this.s2_iiiiiiiipa['output-type'],
+					"auth-type"		: this.s2_iiiiiiiipa['auth-type'],
+					"version_id"		: "<?=$config_param4 ?>",
+					"api_id"		: "<?=$config_param3 ?>",
+				};
+			}else if( this.property_type == "function" ){
+				var s2_dddddddddv = {
+					"action"			: "save_engine_data",
+					"data"				: this.s2_eeeeenigne,
+					"input-method"		: "POST",
+					"input-type"		: "application/json",
+					"output-type"		: "application/json",
+					"auth-type"			: "None",
+					"version_id"		: "<?=$config_param4 ?>",
+					"function_id"		: "<?=$config_param3 ?>",
+				};
+			}else{alert("Error"); return false; }
 			axios.post( "?", s2_dddddddddv).then(response=>{
 				this.s2_ddeen_evas = false;
+				this.s2_evas_tsrif = true;
 				if( response.data["status"] == "success" ){
 					this.s2_gnivas_wohs = false;
 					this.s2_ddeen_evas = false;
@@ -2625,12 +2957,37 @@ var app = s2_ssssssssss({
 			});
 		},
 		s2_yarra_tcejbo_teg: function( v ){
+			//this.s2_ooooooohce("s2_yarra_tcejbo_teg");
+			//this.s2_ooooooohce(v );
 			var val = {};
 			for( var i in v ){
 				if( v[i]['t'] == "L" ){
+					val[ i ] = this.s2_yarra_tsil_teg( v[i]['v'] );
+				}else if( v[i]['t'] == "O" ){
+					val[ i ] = this.s2_yarra_tcejbo_teg( v[i]['v'] );
+				}else if( v[i]['t'] == "B" ){
+					val[ i ] = v[i]['v']=="true"?true:false;
+				}else if( v[i]['t'] == "T" ){
+					val[ i ] = String( v[i]['v'] );
+				}else if( v[i]['t'] == "N" ){
+					val[ i ] = Number( v[i]['v'] );
+				}else{
+					val[ i ] = v[i]['v'];
+				}
+			}
+			//this.s2_ooooooohce(val );
+			return val;
+		},
+		s2_yarra_tsil_teg: function( v ){
+			//this.s2_ooooooohce("s2_yarra_tsil_teg");
+			//this.s2_ooooooohce(v );
+			var val = [];
+			for( var i=0;i<v.length;i++){
+				val.push("");
+				if( v[i]['t'] == "L" ){
 					val[ i ] = [];
 					for(var k=0;k<v[i]['v'].length;k++){
-						val[i].push( this.s2_yarra_tcejbo_teg( v[i]['v'][k] ) );
+						val[i].push( this.s2_yarra_tsil_teg( v[i]['v'] ) );
 					}
 				}else if( v[i]['t'] == "O" ){
 					val[ i ] = this.s2_yarra_tcejbo_teg( v[i]['v'] );
@@ -2644,6 +3001,7 @@ var app = s2_ssssssssss({
 					val[ i ] = v[i]['v'];
 				}
 			}
+			//this.s2_ooooooohce(val );
 			return val;
 		},
 		s2_yalpsid_erofeb_naelc_esnopser: function( v ){
@@ -2659,14 +3017,14 @@ var app = s2_ssssssssss({
 					}catch(e){
 						this.s2_rorre_tset = "json parse failed";
 						if( v.length > 1024 ){
-							return v + " ...striped";
+							return v.substr(0,1024) + " ...striped";
 						}else{
 							return v;
 						}
 					}
 				}else{
 					if( v.length > 1024 ){
-						return v + " ...striped";
+						return v.substr(0,1024) + " ...striped";
 					}else{
 						return v;
 					}
@@ -2683,6 +3041,7 @@ var app = s2_ssssssssss({
 			return vv;
 		},
 		s2_noitalumis_tset: function(){
+			if( this.s2_lllru_tset == "" ){alert("Select Engine Environment");return false;}
 			this.s2_sutats_tset="Testing...";
 			this.s2_rorre_tset="";
 			this.s2_esnopser_tset = false;
@@ -2690,73 +3049,136 @@ var app = s2_ssssssssss({
 			this.s2_gnitiaw_tset=true;
 			var vpostdata = "";
 			var vops = {'headers':{}, 'crossDomain': true };
-			if( this.s2_iiiiiiiipa['input-method'] == "GET" ){
-				axios.get(this.s2_lllru_tset, vops).then(response=>{
-					this.s2_gnitiaw_tset=false;
-					console.log( "Success" );
-					var h = {};
-					for( var d  in response.headers ){
-						h[ d ] = response.headers[ d ];
+			if( this.property_type == "api" ){
+				if( 'headers' in this.s2_tttttttset ){
+					if( 'Access-Key' in this.s2_tttttttset['headers'] ){
+						vops['headers']['Access-Key'] = this.s2_tttttttset['headers']['Access-Key'];
 					}
-					this.s2_esnopser_tset = {
-						"status": response.status,
-						"body": response.data,
-						"headers": h
-					};
-				}).catch(error=>{
-					this.s2_gnitiaw_tset=false;
-					console.log( "Error" );
-					var h = {};
-					for( var d  in error.response.headers ){
-						h[ d ] = error.response.headers[ d ];
+				}
+				if( this.s2_iiiiiiiipa['input-method'] == "GET" ){
+					axios.get(this.s2_lllru_tset, vops).then(response=>{
+						this.s2_gnitiaw_tset=false;
+						console.log( "Success" );
+						var h = {};
+						for( var d  in response.headers ){
+							h[ d ] = response.headers[ d ];
+						}
+						this.s2_esnopser_tset = {
+							"status": response.status,
+							"body": response.data,
+							"headers": h
+						};
+					}).catch(error=>{
+						this.s2_gnitiaw_tset=false;
+						console.log( "Error" );
+						var h = {};
+						for( var d  in error.response.headers ){
+							h[ d ] = error.response.headers[ d ];
+						}
+						console.log( h );
+						this.s2_esnopser_tset = {
+							"status": error.response.status,
+							"body": error.response.data,
+							"headers": h
+						};
+					});
+				}else if( this.s2_iiiiiiiipa['input-method'] == "POST" ){
+					if( this.s2_iiiiiiiipa['input-type'] == "application/x-www-form-urlencoded" ){
+						vops['headers']['content-type'] = "application/x-www-form-urlencoded";
+						var vpostdata = this.s2_gnirts_yreuq_ekam( this.s2_tttttttset['factors']['v'] );
+						if( this.s2_gubed_tset ){
+							vpostdata = vpostdata + "&debug=true";
+						}
+					}else{
+						vops['headers']['content-type'] = "application/json";
+						var vpostdata = this.s2_yarra_tcejbo_teg(this.s2_tttttttset['factors']['v']);
+						if( this.s2_gubed_tset ){
+							vpostdata[ "debug" ] = true;
+						}
 					}
-					console.log( h );
-					this.s2_esnopser_tset = {
-						"status": error.response.status,
-						"body": error.response.data,
-						"headers": h
-					};
-				});
-			}else if( this.s2_iiiiiiiipa['input-method'] == "POST" ){
-				if( this.s2_iiiiiiiipa['input-type'] == "application/x-www-form-urlencoded" ){
-					vops['headers']['content-type'] = "application/x-www-form-urlencoded";
-					var vpostdata = this.s2_gnirts_yreuq_ekam( this.s2_tttttttset['factors']['v'] );
-					if( this.s2_gubed_tset ){
-						vpostdata = vpostdata + "&debug=true";
-					}
-				}else{
+					axios.post(this.s2_lllru_tset, vpostdata, vops).then(response=>{
+						this.s2_gnitiaw_tset=false;
+						console.log( "Success" );
+						var h = {};
+						for( var d  in response.headers ){
+							h[ d ] = response.headers[ d ];
+						}
+						this.s2_esnopser_tset = {
+							"status": response.status,
+							"body": response.data,
+							"headers": h
+						};
+					}).catch(error=>{
+						this.s2_gnitiaw_tset=false;
+						console.log( "Error" );
+						console.log( error );
+						//if( typeof())
+						var h = {};
+						if( 'response' in error ){
+							if( 'headers' in error.response ){
+								for( var d  in error.response['headers'] ){
+									h[ d ] = error.response.headers[ d ];
+								}
+							}
+							console.log( h );
+							this.s2_esnopser_tset = {
+								"status": error.response.status,
+								"body": error.response.data,
+								"headers": h
+							};
+						}else{
+							this.s2_esnopser_tset = {
+								"status": error.code,
+								"body": error.name + ": " + error.message,
+								"headers": h
+							};
+						}
+					});
+				}
+			}else if( this.property_type == "function" ){
 					vops['headers']['content-type'] = "application/json";
 					var vpostdata = this.s2_yarra_tcejbo_teg(this.s2_tttttttset['factors']['v']);
 					if( this.s2_gubed_tset ){
 						vpostdata[ "debug" ] = true;
 					}
-				}
-				axios.post(this.s2_lllru_tset, vpostdata, vops).then(response=>{
-					this.s2_gnitiaw_tset=false;
-					console.log( "Success" );
-					var h = {};
-					for( var d  in response.headers ){
-						h[ d ] = response.headers[ d ];
-					}
-					this.s2_esnopser_tset = {
-						"status": response.status,
-						"body": response.data,
-						"headers": h
-					};
-				}).catch(error=>{
-					this.s2_gnitiaw_tset=false;
-					console.log( "Error" );
-					var h = {};
-					for( var d  in error.response.headers ){
-						h[ d ] = error.response.headers[ d ];
-					}
-					console.log( h );
-					this.s2_esnopser_tset = {
-						"status": error.response.status,
-						"body": error.response.data,
-						"headers": h
-					};
-				});
+					axios.post(this.s2_lllru_tset, vpostdata, vops).then(response=>{
+						this.s2_gnitiaw_tset=false;
+						console.log( "Success" );
+						var h = {};
+						for( var d  in response.headers ){
+							h[ d ] = response.headers[ d ];
+						}
+						this.s2_esnopser_tset = {
+							"status": response.status,
+							"body": response.data,
+							"headers": h
+						};
+					}).catch(error=>{
+						this.s2_gnitiaw_tset=false;
+						console.log( "Error" );
+						console.log( error );
+						//if( typeof())
+						var h = {};
+						if( 'response' in error ){
+							if( 'headers' in error.response ){
+								for( var d  in error.response['headers'] ){
+									h[ d ] = error.response.headers[ d ];
+								}
+							}
+							console.log( h );
+							this.s2_esnopser_tset = {
+								"status": error.response.status,
+								"body": error.response.data,
+								"headers": h
+							};
+						}else{
+							this.s2_esnopser_tset = {
+								"status": error.code,
+								"body": error.name + ": " + error.message,
+								"headers": h
+							};
+						}
+					});
 			}
 		},
 		s2_selbairav_tset_etaerc: function(){
@@ -2787,7 +3209,7 @@ var app = s2_ssssssssss({
 				}else if( v[ k ]['t'] == "L" ){
 					var vvv = [];
 					for( var vi=0; vi<v[ k ]['v'].length; vi++ ){
-						vvv.push( this.s2_seulav_ot_srotcaf_tupni( v[ k ]['v'][ vi ] ) );
+						vvv.push( {"t":"O","v": this.s2_seulav_ot_srotcaf_tupni( v[ k ]['v'][ vi ]['v'] ) } );
 					}
 					vv[k] = {"k":k,"t":"L", "v": vvv , "m":v[k]['m']};
 				}else if( v[ k ]['t'] == "O" ){
@@ -2870,6 +3292,28 @@ var app = s2_ssssssssss({
 				}
 			}
 			this.s2_smeti_dekcehc = c;
+		},
+		s2_segats_tnemmoc: function(v){
+			var t=0;var t2=0;
+			for( var i=0;i<this.s2_ssssskcehc.length;i++){if( this.s2_ssssskcehc[i]['checked'] ){
+				t++;
+				if( this.s2_eeeeenigne['stages'][i]['a'] ){
+					t2++;
+				}
+			}}
+			if( t2 < t || t2 == 0 ){
+				for( var i=0;i<this.s2_ssssskcehc.length;i++){if( this.s2_ssssskcehc[i]['checked'] ){
+					this.s2_eeeeenigne['stages'][i]['a'] = true;
+				}}
+			}else{
+				for( var i=0;i<this.s2_ssssskcehc.length;i++){if( this.s2_ssssskcehc[i]['checked'] ){
+					this.s2_eeeeenigne['stages'][i]['a'] = false;
+				}}
+			}
+			//this.s2_skcehc_dnif();
+			this.s2_tnuoc_dekcehc_dnif();
+			this.s2_selbairav_llif();
+			this.s2_ddeen_evas=true;
 		},
 		s2_segats_eteled: function(v){
 			var delcnt=0;
@@ -3079,6 +3523,7 @@ var app = s2_ssssssssss({
 					"ee": true, //editable
 					"er": "",
 					"wr": "",
+					"a": false,
 				});
 				new_stage_id = this.s2_eeeeenigne['stages'].length-1;
 			}else{
@@ -3096,11 +3541,20 @@ var app = s2_ssssssssss({
 					"ee": true,
 					"er": "",
 					"wr": "",
+					"a": false,
 				});
 			}
 			this.s2_skcehc_dnif();
 			this.s2_ddeen_evas = true;
 			this.s2_selbairav_llif();
+		},
+		s2_elbasid_egats: function(vi){
+			this.s2_eeeeenigne['stages'][ vi ]['a'] = true;
+			this.s2_ddeen_evas = true;
+		},
+		s2_elbane_egats: function(vi){
+			this.s2_eeeeenigne['stages'][ vi ]['a'] = false;
+			this.s2_ddeen_evas = true;
 		},
 		s2_egats_egnahc_egats: function( vid, new_key, new_type ){
 			this.s2_egats_detaerc_tsuj = vid;
@@ -3144,7 +3598,7 @@ var app = s2_ssssssssss({
 								"l": curstage,
 								"e": false,
 								"d": {},
-								"er": "","wr": "",
+								"er": "","wr": "","a":false,
 								"vrand": s2_ddddddnarv,
 								"vend": true
 							});
@@ -3155,7 +3609,7 @@ var app = s2_ssssssssss({
 								"l": (curstage+1),
 								"e": false,
 								"d": {},
-								"er": "","wr": "",
+								"er": "","wr": "","a":false,
 							});
 						}
 					}
@@ -3184,9 +3638,7 @@ var app = s2_ssssssssss({
 					console.log("Object: " + new_key['v'] + " not found in stage wise params");
 				}
 			}else if( new_key['t'] == "TH" ){
-				console.log("TH found");
 				var d = this.s2_rav_bus_o_teg( this.s2_esiw_egats_srotcaf_lla[ vid ], new_key['v'] );
-				this.s2_ooooooohce( d );
 				if( d ){
 					//  CHECK IF TH VAR IS PART OF SPECIAL PLUGGINS
 					//new_key['plg'] = d['plg']+'';
@@ -3219,6 +3671,24 @@ var app = s2_ssssssssss({
 
 			this.s2_ddeen_evas = true;
 		},
+		s2_noitcnuf_ot_egats_egnahc_egats: function( sid ){
+			var kk = JSON.parse(JSON.stringify(this.s2_eeeeenigne['stages'][ this.s2_di_egats_txetnoc ]));
+			this.s2_eeeeenigne['stages'][ this.s2_di_egats_txetnoc ]['d']['rhs'] = {
+				't': "Function",
+				'v': {"fn": "","inputs": {},"self": false,"return": "B"}
+			};
+			this.s2_segats_bus_ni_egnahc_epyt_elbairav_etadpu( this.s2_di_egats_txetnoc, this.s2_eeeeenigne['stages'][ this.s2_di_egats_txetnoc ]['d']['lhs']+'', 'B' );
+			this.s2_noitpo_detadpu();return;
+		},
+		s2_egats_ngissa_tel_ti_si: function(){
+			if( this.s2_rof_txetnoc == "stages" ){
+				var k = this.s2_eeeeenigne['stages'][ this.s2_di_egats_txetnoc ];
+				if( k['t'] == "c" && ( k['k']['v'] == "Let" || k['k']['v'] == "Assign" ) ){
+					return true;
+				}
+			}
+			return false;
+		},
 		s2_nnnnnnnosj: function( v ){
 			if( typeof(v) == "object" ){
 				return JSON.parse( JSON.stringify( v ) );
@@ -3240,6 +3710,9 @@ var app = s2_ssssssssss({
 				vl = 0;
 			}
 			var v = "margin-left:"+(vl*20)+"px; ";
+			if( vl > 0 ){
+				v = v + "border-left:2px solid #999;"
+			}
 			return v;
 		},
 		s2_dnar_txen_dnif: function( vi ){
@@ -3280,11 +3753,41 @@ var app = s2_ssssssssss({
 			this.s2_eeeeenigne['stages'][ vi ]['d']['cond'].splice(vfi,1);
 			this.s2_ddeen_evas = true;
 		},
+		s2_TTTT_pupop: function(){
+			this.s2_rav_bus_egats_tes(this.s2_di_egats_pupop, this.s2_ravatad_pupop, this.s2_atad_pupop);
+			this.s2_noitpo_detadpu();
+		},
+		s2_etadpu_TT_pupop: function(){
+			this.s2_rav_bus_egats_tes(this.s2_di_egats_pupop, this.s2_ravatad_pupop, this.s2_atad_pupop);
+			this.s2_noitpo_detadpu();
+			if( this.s2_ladom_pupop ){
+				this.s2_ladom_pupop.hide();
+			}
+		},
+		s2_etadpu_TH_pupop: function(){
+			var v = this.ace_editor2.getValue();
+			this.s2_rav_bus_egats_tes(this.s2_di_egats_pupop, this.s2_ravatad_pupop, v);
+			this.s2_noitpo_detadpu();
+			if( this.s2_ladom_lmth_pupop ){
+				this.s2_ladom_lmth_pupop.hide();
+			}
+		},
 		s2_atad_nosj_tropmi_pupop: function(){
 			try{
 				var d = JSON.parse(this.s2_rts_tropmi_pupop);
 				this.s2_atad_pupop = this.s2_etalpmet_ot_nosj_nialp(d);
 				this.s2_rav_bus_egats_tes(this.s2_di_egats_pupop, this.s2_ravatad_pupop, this.s2_atad_pupop);
+				this.s2_tropmi_pupop = false;
+				this.s2_noitpo_detadpu();
+			}catch(e){
+				console.log("Popup Import failed: "  + e );
+			}
+		},
+		s2_daolyap_rof_atad_nosj_tropmi_pupop: function(){
+			try{
+				var d = JSON.parse(this.s2_rts_tropmi_pupop);
+				this.s2_atad_pupop = this.s2_etalpmet_ot_nosj_nialp(d);
+				this.s2_rav_bus_tes(this.s2_tttttttset, this.s2_ravatad_pupop, this.s2_atad_pupop);
 				this.s2_tropmi_pupop = false;
 				this.s2_noitpo_detadpu();
 			}catch(e){
@@ -3461,7 +3964,7 @@ app.mount("#app");
 
 
 function s2_noitaton_tcejbo_teg( v ){
-	console.log("get_object_notation: " );
+	console.log("global get_object_notation: " );
 	console.log( v );
 	var vv = {};
 	if( typeof(v)==null ){

@@ -1,5 +1,26 @@
 <?php
 
+if( !isset($_POST['app_id']) ){
+	json_response([
+		"status"=>"fail",
+		"error"=>"App Id Missing"
+	]);
+}
+if( !preg_match("/^[a-f0-9]{24}$/",$_POST['app_id']) ){
+	json_response([
+		"status"=>"fail",
+		"error"=>"App Id Incorrect"
+	]);
+}
+
+$ress = $mongodb_con->find_one( $config_global_apimaker['config_mongo_prefix'] . "_apps", ["_id"=>$_POST['app_id']] );
+if( !$ress['data'] ){
+	json_response([
+		"status"=>"fail",
+		"error"=>"App not found"
+	]);
+}
+
 $config_api_databases = $config_global_apimaker['config_mongo_prefix'] . "_databases";
 $config_api_tables = $config_global_apimaker['config_mongo_prefix'] . "_tables";
 $config_tables_dynamic = $config_global_apimaker['config_mongo_prefix'] . "_tables_dynamic";
@@ -44,7 +65,7 @@ if( $_POST['action'] == "context_load_things" ){
 			]
 		];
 	}else if( $_POST['thing'] == "MongoDb-Database" ){
-		$res= $mongodb_con->find( $config_api_databases, ["engine"=>"MongoDb"] );
+		$res= $mongodb_con->find( $config_api_databases, ["engine"=>"MongoDb", "app_id"=>$_POST['app_id']] );
 		$things = [];
 		foreach( $res['data'] as $i=>$j ){
 			$things[] = [
@@ -89,6 +110,7 @@ if( $_POST['action'] == "context_load_things" ){
 			}
 		}
 	}else if( $_POST['thing'] == "MySql-Table" ){
+	
 		$res= $mongodb_con->find( $config_api_tables, ["db_id"=>$_POST['depend']] );
 		$things = [];
 		foreach( $res['data'] as $i=>$j ){
@@ -99,6 +121,7 @@ if( $_POST['action'] == "context_load_things" ){
 			];
 		}
 	}else if( $_POST['thing'] == "MySql-Schema" ){
+	
 		list($db_id,$table_id) = explode(":",$_POST['depend']);
 		$res= $mongodb_con->find_one( $config_api_tables, ["db_id"=>$db_id,"_id"=>$table_id] );
 		$things = [];
@@ -115,6 +138,7 @@ if( $_POST['action'] == "context_load_things" ){
 			}
 		}
 	}else if( $_POST['thing'] == "Internal-Table" ){
+	
 		$res= $mongodb_con->find( $config_tables_dynamic, ["app_id"=>$_POST['app_id']] );
 		$things = [];
 		foreach( $res['data'] as $i=>$j ){
@@ -125,6 +149,7 @@ if( $_POST['action'] == "context_load_things" ){
 			];
 		}
 	}else if( $_POST['thing'] == "Internal-Schema" ){
+	
 		$res= $mongodb_con->find_one( $config_tables_dynamic, ["app_id"=>$_POST['app_id'], "_id"=>$_POST['depend']] );
 		//print_pre( $res );
 		$things = [];
@@ -140,7 +165,37 @@ if( $_POST['action'] == "context_load_things" ){
 				];
 			}
 		}
+	}else if( $_POST['thing'] == "Files" ){
+		$res= $mongodb_con->find( $config_global_apimaker['config_mongo_prefix'] . "_files", [
+			"app_id"=>$_POST['app_id'],
+		], ['sort'=>['name'=>1,'name'=>1]]);
+		$things = [];
+		if( $res['data'] ){
+			foreach( $res['data'] as $sch=>$j ){
+				$things[] = [
+					"th"=> "File", 
+					"i"=>["t"=>"T", "v"=>$j['_id']],
+					"l"=>["t"=>"T", "v"=>$j['path'].$j['name']],
+				];
+			}
+		}
+	}else if( $_POST['thing'] == "Pages" ){
+		$res= $mongodb_con->find( $config_global_apimaker['config_mongo_prefix'] . "_pages", [
+			"app_id"=>$_POST['app_id'],
+		], ['sort'=>['name'=>1], 'projection'=>['name'=>1, 'version_id'=>1] ]);
+		//print_r( $res );exit;
+		$things = [];
+		if( $res['data'] ){
+			foreach( $res['data'] as $sch=>$j ){
+				$things[] = [
+					"th"=> "Page", 
+					"i"=>["t"=>"T", "v"=>$j['version_id']],
+					"l"=>["t"=>"T", "v"=>$j['name']],
+				];
+			}
+		}
 	}else if( $_POST['thing'] == "Functions" ){
+	
 		$res= $mongodb_con->find( $config_global_apimaker['config_mongo_prefix'] . "_functions", [
 			"app_id"=>$_POST['app_id'],
 		], ['sort'=>['name'=>1]]);
@@ -164,6 +219,131 @@ if( $_POST['action'] == "context_load_things" ){
 				}
 			}
 		}
+	}else if( $_POST['thing'] == "UserRoles" ){
+		$res = $mongodb_con->find( $config_global_apimaker['config_mongo_prefix'] . "_user_roles", [
+			'app_id'=>$_POST['app_id']
+		],[
+			'sort'=>['name'=>1],
+			'limit'=>200,
+		]);
+		$things = [];
+		foreach( $res['data'] as $i=>$j ){
+			$things[] = ["l"=>["t"=>"T", "v"=>$j['name'] ], "i"=>["t"=>"T", "v"=>$j['_id']] ];
+		}
+
+	}else if( $_POST['thing'] == "PolicyThings" ){
+
+		if( $_POST['depend'] == "tables" ){
+
+			$things = [];
+			$things[] = ["l"=>["t"=>"T", "v"=>"*"],   "i"=>["t"=>"T", "v"=>"*"]];
+			$res = $mongodb_con->find( $config_global_apimaker['config_mongo_prefix'] . "_tables_dynamic", [
+				'app_id'=>$_POST['app_id']
+			],[
+				'sort'=>['table'=>1],
+				'limit'=>200,
+			]);
+			foreach( $res['data'] as $i=>$j ){
+				$things[] = ["l"=>["t"=>"T", "v"=>"internal:".$j['table'] ], "i"=>["t"=>"T", "v"=>"table_dynamic:".$j['_id']] ];
+			}
+
+			$res = $mongodb_con->find( $config_global_apimaker['config_mongo_prefix'] . "_databases", [
+				'app_id'=>$_POST['app_id']
+			],[
+				'sort'=>['des'=>1],
+				'limit'=>200,
+				'projection'=>['details'=>false, 'm_i'=>false, 'user_id'=>false]
+			]);
+			foreach( $res['data'] as $i=>$j ){
+				$res2 = $mongodb_con->find( $config_global_apimaker['config_mongo_prefix'] . "_tables", [
+					'app_id'=>$_POST['app_id'],
+					"db_id"=>$j['_id']
+				],[
+					'sort'=>['des'=>1],
+					'limit'=>200,
+					'projection'=>['f_n'=>false, 'source_schema'=>false, 'm_i'=>false, 'user_id'=>false ]
+				]);
+				foreach( $res2['data'] as $ii=>$jj ){
+					$things[] = ["l"=>["t"=>"T", "v"=>"external:".$j['des'] . ":" . $jj['des']], "i"=>["t"=>"T", "v"=>"table:".$jj['_id']] ];
+				}
+			}
+		}
+		if( $_POST['depend'] == "apis" ){
+			$res = $mongodb_con->find( $config_global_apimaker['config_mongo_prefix'] . "_apis", [
+				'app_id'=>$_POST['app_id']
+			],[
+				'sort'=>['path'=>1,'name'=>1],
+				'limit'=>200,
+				'projection'=>[
+					'path'=>1,'name'=>true, 'des'=>true
+				]
+			]);
+			//print_r( $res['data'] );exit;
+			foreach( $res['data'] as $i=>$j ){
+				$things[] = ["l"=>["t"=>"T", "v"=>"api:".$j['path'].$j['name'] ], "i"=>["t"=>"T", "v"=>"api:".$j['_id']] ];
+			}
+
+			$things[] = ["l"=>["t"=>"T", "v"=>"auth_api:generate_access_token"], "i"=>["t"=>"T", "v"=>"auth_api:10001"]];
+			$things[] = ["l"=>["t"=>"T", "v"=>"auth_api:user_auth"],   "i"=>["t"=>"T", "v"=>"auth_api:10002"]];
+			$things[] = ["l"=>["t"=>"T", "v"=>"auth_api:user_auth_captcha"],   "i"=>["t"=>"T", "v"=>"auth_api:10003"]];
+			$things[] = ["l"=>["t"=>"T", "v"=>"auth_api:verify_session_key"],   "i"=>["t"=>"T", "v"=>"auth_api:10004"]];
+			$things[] = ["l"=>["t"=>"T", "v"=>"auth_api:assume_session_key"],   "i"=>["t"=>"T", "v"=>"auth_api:10005"]];
+			$things[] = ["l"=>["t"=>"T", "v"=>"captcha:get"],   "i"=>["t"=>"T", "v"=>"captcha:10101"]];
+		}
+		if( $_POST['depend'] == "files" ){
+			$things[] = ["l"=>["t"=>"T", "v"=>"file:internal" ], "i"=>["t"=>"T", "v"=>"file:f0010"] ];
+		}
+		if( $_POST['depend'] == "storage" ){
+			$res = $mongodb_con->find( $config_global_apimaker['config_mongo_prefix'] . "_storage_vaults", [
+				'app_id'=>$_POST['app_id']
+			],[
+				'sort'=>['des'=>1],
+				'limit'=>200,
+				'projection'=>[
+					'des'=>true, 'vault_type'=>true
+				]
+			]);
+			//print_r( $res['data'] );exit;
+			foreach( $res['data'] as $i=>$j ){
+				$things[] = ["l"=>["t"=>"T", "v"=>"file:storage_vault:".$j['des'] ], "i"=>["t"=>"T", "v"=>"storage_vault:".$j['_id']] ];
+			}
+		}
+
+
+	}else if( $_POST['thing'] == "page_edit_tables_internal" ){
+		$things = [];
+		$res = $mongodb_con->find( $config_global_apimaker['config_mongo_prefix'] . "_tables_dynamic", [
+			'app_id'=>$_POST['app_id']
+		],[
+			'sort'=>['table'=>1],
+			'limit'=>200,
+		]);
+		foreach( $res['data'] as $i=>$j ){
+			$things[] = ["l"=>"internal:".$j['table'], "i"=>"table_dynamic:".$j['_id']];
+		}
+	
+	}else if( $_POST['thing'] == "page_edit_tables_external" ){
+		$res = $mongodb_con->find( $config_global_apimaker['config_mongo_prefix'] . "_databases", [
+			'app_id'=>$_POST['app_id']
+		],[
+			'sort'=>['des'=>1],
+			'limit'=>200,
+			'projection'=>['details'=>false, 'm_i'=>false, 'user_id'=>false]
+		]);
+		foreach( $res['data'] as $i=>$j ){
+			$res2 = $mongodb_con->find( $config_global_apimaker['config_mongo_prefix'] . "_tables", [
+				'app_id'=>$_POST['app_id'],
+				"db_id"=>$j['_id']
+			],[
+				'sort'=>['des'=>1],
+				'limit'=>200,
+				'projection'=>['f_n'=>false, 'source_schema'=>false, 'm_i'=>false, 'user_id'=>false ]
+			]);
+			foreach( $res2['data'] as $ii=>$jj ){
+				$things[] = ["l"=>"external:".$j['des'] . ":" . $jj['des'], "i"=>"table:".$j['engine'].":".$jj['_id']];
+			}
+		}
+	
 	}else{
 		$things = [];
 	}
