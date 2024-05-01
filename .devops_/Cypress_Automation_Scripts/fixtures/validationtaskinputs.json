@@ -7,22 +7,20 @@
     "submodulename": "APIs",
     "filename": "/testapparao",
 
-    "randomTexts1": ["alpha_input"],
+
+    "randomTexts1": ["alpha_input","alpha_num_input"],
+
 
     "expression1": "Let",
 
-    "randomTexts2": ["alpha_validate"],
+    "randomTexts2": ["alpha_validate","alpha_num_validate"],
 
     "expression2": "Function",
 
     "expression3": "Validate Input",
 
-    "randomTexts3": ["Alpha"],
+    "randomTexts3": ["Alpha","AlphaNumeric"],
 
-    "expression4": "RespondJSON",
-    
-    "respondjsonstructure": ["Apparao"],
-
-    "eename":"testautomationcypress.backendmaker.com (cloud)"
+    "expression4": "RespondJSON"
 
 }

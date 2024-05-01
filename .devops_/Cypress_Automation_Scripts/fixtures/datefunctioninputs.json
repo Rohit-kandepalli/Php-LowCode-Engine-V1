@@ -1,0 +1,22 @@
+{
+    "username": "admin",
+    "password": "Admin123!@#",
+    "appname": "testautomationcypress",
+
+    "submodulename": "APIs",
+    "filename": "/datefunction",
+
+    "input": ["add_days_to_date","dob","remove_days_to_date","time"],
+
+    "expression1": "Let",
+
+    "letvariables": ["years_till_today","mon_till_today","date_till_today","default_date","days_diff","month_diff","years_diff","add_days","remove_days","change_date_format","date_to_time","time_to_date","time_to_datetime"],
+
+    "expression2": "Function",
+
+    "functionlet": ["Years till Today","Months till Today","Days till Today","Days Diff","Months Diff","Years Diff","Add Days","Minus Days","Change Format","Date To Timestamp","Timestamp To Date","Timestamp To DateTime"],
+
+    "expression3": "RespondJSON"
+
+
+}

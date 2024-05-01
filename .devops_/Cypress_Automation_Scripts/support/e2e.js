@@ -18,11 +18,3 @@ import './commands'
 
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
-require('cypress-xpath');
-
-import 'cypress-mochawesome-reporter/register';
-
-// https://github.com/bahmutov/cypress-failed-log
-require('cypress-failed-log')
-// you can use the "import" keyword
-import "cypress-failed-log"

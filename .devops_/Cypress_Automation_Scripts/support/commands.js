@@ -23,42 +23,5 @@
 //
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
-require('cypress-xpath');
-import 'cypress-file-upload';
-import './commands'
 
-// Global variable code
-
-Cypress.Commands.add('setGlobalVariable', (key, value) => {
-  Cypress.env(key, value);
-});
-
-Cypress.Commands.add('getGlobalVariable', (key) => {
-  return Cypress.env(key);
-});
-
-
-// let globalVariable;
-
-// Cypress.Commands.add('setGlobalVariable', (value) => {
-//   globalVariable = value;
-// });
-
-// Cypress.Commands.add('getGlobalVariable', () => {
-//   return globalVariable;
-// });
-
-
-
-// Add this in your support/commands.js file
-
-// Cypress.Commands.add("softAssert", (actual, expected, message) => {
-//   cy.log(`Soft Assertion: ${message}`);
-//   expect(actual).to.equal(expected, message);
-// });
-
-// Cypress.Commands.add("softAssertContains", (haystack, needle, message) => {
-//   cy.log(`Soft Assertion: ${message}`);
-//   expect(haystack).to.include(needle, message);
-// });
-
+import 'cypress-xpath';
